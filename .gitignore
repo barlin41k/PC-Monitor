@@ -1,0 +1,14 @@
+# android studio
+/status_app/.gradle/
+/status_app/.idea/
+/status_app/local.properties
+/status_app/build/
+/status_app/app/build/
+*.iml
+
+# node
+/status_server/node_modules/
+/status_server/.env
+
+# all
+.DS_Store

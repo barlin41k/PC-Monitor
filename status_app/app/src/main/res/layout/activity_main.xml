@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#160e29"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/ip_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Введите имя хоста сервера"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#AAAAAA"
+            android:inputType="text"
+            android:textStyle="italic"
+            android:gravity="center"
+            />
+
+        <Button
+            android:id="@+id/apply_ip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Применить"
+            android:layout_gravity="center"/>
+
+
+        <!-- Раздел: Процессор -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Процессор"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="4dp"
+            android:layout_marginTop="50dp"
+            android:fontFamily="@font/inter_bold"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/cpu_load"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="Загрузка процессора: ...%"
+            android:textColor="#c4c1c9"
+            android:paddingBottom="12dp"
+            android:layout_gravity="center" />
+
+        <!-- <TextView
+            android:id="@+id/cpu_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="Температура процессора: ...°C"
+            android:textColor="#c4c1c9"
+            android:paddingBottom="12dp"
+            android:layout_gravity="center" /> -->
+
+        <!-- Раздел: Оперативная память -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Оперативная память"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="4dp"
+            android:fontFamily="@font/inter_bold"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/total_mem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="Загрузка ОЗУ: ... ГБ"
+            android:textColor="#c4c1c9"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/free_mem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="Свободно ОЗУ: ... ГБ"
+            android:textColor="#c4c1c9"
+            android:layout_gravity="center"
+            android:paddingBottom="12dp" />
+
+        <!-- Раздел: Диск -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Диск"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="4dp"
+            android:fontFamily="@font/inter_bold"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/total_disk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="Занято на всех дисках: ... ГБ"
+            android:textColor="#c4c1c9"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/free_disk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="Свободно на всех дисках: ... ГБ"
+            android:textColor="#c4c1c9"
+            android:layout_gravity="center"
+            android:paddingBottom="12dp" />
+
+        <!-- Раздел: Батарея -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Батарея"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="4dp"
+            android:fontFamily="@font/inter_bold"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/is_charging"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="Заряжается ли?..."
+            android:textColor="#c4c1c9"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/percent_charging"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="Процент зарядки: ...%"
+            android:textColor="#c4c1c9"
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:id="@+id/time_remaining_battery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="Осталось времени работы: ...мин"
+            android:textColor="#c4c1c9"
+            android:layout_gravity="center"
+            android:paddingBottom="8dp" />
+
+        <!-- Раздел: ОС-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Операционная система"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingBottom="4dp"
+            android:fontFamily="@font/inter_bold"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/os_uptime_hours"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="Время работы: ... часов"
+            android:textColor="#c4c1c9"
+            android:layout_gravity="center" />
+
+    </LinearLayout>
+</ScrollView>
