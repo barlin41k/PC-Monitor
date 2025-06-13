@@ -1,5 +1,4 @@
 # PC Monitor
-![GitHub release](https://img.shields.io/github/v/release/barlin41k/PC-Monitor?style=for-the-badge)
 ![GitHub repo size](https://img.shields.io/github/repo-size/barlin41k/PC-Monitor?style=for-the-badge)
 ![GitHub issues](https://img.shields.io/github/issues/barlin41k/PC-Monitor?style=for-the-badge)
 ![GitHub stars](https://img.shields.io/github/stars/barlin41k/PC-Monitor?style=for-the-badge)
