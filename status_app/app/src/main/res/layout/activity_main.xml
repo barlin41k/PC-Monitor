@@ -109,6 +109,13 @@
             android:fontFamily="@font/inter_bold"
             android:layout_gravity="center" />
 
+        <Spinner
+            android:id="@+id/disk_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/spinner_bg"
+            />
+
         <TextView
             android:id="@+id/total_disk"
             android:layout_width="wrap_content"
@@ -116,6 +123,7 @@
             android:fontFamily="@font/inter_bold"
             android:text="Занято на всех дисках: ... ГБ"
             android:textColor="#c4c1c9"
+            android:layout_marginTop="6dp"
             android:layout_gravity="center" />
 
         <TextView
