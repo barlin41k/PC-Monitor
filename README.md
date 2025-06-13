@@ -1,4 +1,14 @@
 # PC Monitor
+![GitHub release](https://img.shields.io/github/v/release/barlin41k/PC-Monitor?style=for-the-badge)
+![GitHub repo size](https://img.shields.io/github/repo-size/barlin41k/PC-Monitor?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/barlin41k/PC-Monitor?style=for-the-badge)
+![GitHub stars](https://img.shields.io/github/stars/barlin41k/PC-Monitor?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/barlin41k/PC-Monitor?style=for-the-badge)
+![License](https://img.shields.io/github/license/barlin41k/PC-Monitor?style=for-the-badge)
+
+![Kotlin](https://img.shields.io/badge/Kotlin-0095D5?style=for-the-badge&logo=kotlin&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 
 ## Описание
 
