@@ -117,6 +117,8 @@ class MainActivity : AppCompatActivity() {
                             else -> "Оставшееся время работы: не определено".coloredSpan("#f7f2f2", 0, 24)
                         }
 
+                        val selectedFs = spinner.selectedItem?.toString()
+
                         val adapter = ArrayAdapter(
                             this@MainActivity,
                             R.layout.spinner_item,
@@ -138,7 +140,8 @@ class MainActivity : AppCompatActivity() {
                             override fun onNothingSelected(parent: AdapterView<*>) {}
                         }
 
-                        spinner.setSelection(0)
+                        val indexToSelect = diskList.indexOfFirst { it.fs == selectedFs }.takeIf { it >= 0 } ?: 0
+                        spinner.setSelection(indexToSelect)
 
                         osUptimeTimeLabel.text = "Время работы: ${getHourString(osUptimeHours/3600)}".coloredSpan("#f7f2f2", 0, 12)
                     }
