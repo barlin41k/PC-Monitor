@@ -3,5 +3,10 @@
     <style name="Base.Theme.PCMonitor" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="backgroundColor">#160e29</item> <!-- бг -->
+        <item name="colorOnBackground">#ffffff</item> <!-- категория + спиннер текст -->
+        <item name="colorSecondary">#c4c1c9</item> <!-- элементы категории -->
+        <item name="colorPrimary">#1f133d</item> <!-- бг спиннера -->
+        <item name="colorAccent">#1f133d</item> <!-- обводка спиннера -->
     </style>
 </resources>

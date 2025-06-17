@@ -1,3 +1,25 @@
 <resources>
-    <string name="app_name">PC Monitor</string>
+    <string name="app_name" translatable="false">PC Monitor</string>
+
+    <string name="cpu_load">Загрузка процессора: %1$.2f%%</string>
+
+    <string name="memory_usage">Загрузка ОЗУ: %1$.2f/%2$.2f ГБ (%3$.2f%%)</string>
+    <string name="free_memory">Свободное ОЗУ: %1$.2f ГБ (%2$.2f%%)</string>
+    <string name="swap_usage">Загрузка файла подкачки: %1$.2f/%2$.2f ГБ (%3$.2f%%)</string>
+    <string name="swap_free">Свободно в файле подкачки: %1$.2f ГБ (%2$.2f%%)</string>
+
+    <string name="disk_used">Занято: %1$.2f/%2$.2f ГБ (%3$.2f%%)</string>
+    <string name="disk_free">Свободно: %1$.2f ГБ (%2$.2f%%)</string>
+
+    <string name="battery_is_not">Батарея не обнаружена</string>
+    <string name="battery_status_charging">Батарея: заряжается</string>
+    <string name="battery_status_not_charging">Батарея: не заряжается</string>
+    <string name="battery_status_full">Батарея: заряжена полностью</string>
+    <string name="battery_status_unknown">Батарея: не известно</string>
+    <string name="percent_charging">Процент зарядки: %1$.0f%%</string>
+    <string name="time_remaining_battery">Оставшееся время работы: %1$.1f мин</string>
+    <string name="time_remaining_battery_infinite">Оставшееся время работы: ∞ мин</string>
+    <string name="time_remaining_battery_unknown">Оставшееся время работы: не определено</string>
+
+    <string name="uptime">Время работы: %1$s</string>
 </resources>

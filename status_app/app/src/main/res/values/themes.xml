@@ -3,7 +3,11 @@
     <style name="Base.Theme.PCMonitor" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="backgroundColor">#936edb</item> <!-- бг -->
+        <item name="colorOnBackground">#000000</item> <!-- категория + спиннер текст -->
+        <item name="colorSecondary">#4c4460</item> <!-- элементы категории -->
+        <item name="colorPrimary">#a98af0</item> <!-- фон спиннера -->
+        <item name="colorAccent">#825ecf</item> <!-- обводка спиннера -->
     </style>
-
     <style name="Theme.PCMonitor" parent="Base.Theme.PCMonitor" />
 </resources>
