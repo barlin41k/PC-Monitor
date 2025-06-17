@@ -23,7 +23,7 @@
 <table>
   <tr>
     <td width="50%">
-      <img src="https://raw.githubusercontent.com/barlin41k/PC-Monitor/main/animation.gif?v=3" width="100%" alt="Превью">
+      <img src="https://raw.githubusercontent.com/barlin41k/PC-Monitor/main/animation.gif" width="100%" alt="Превью">
     </td>
     <td width="50%" valign="top">
       <h3>🧠 Возможности:</h3>
