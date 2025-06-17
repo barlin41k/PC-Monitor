@@ -8,6 +8,8 @@ import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
+import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -35,7 +37,7 @@ import okhttp3.Request
 class MainActivity : AppCompatActivity() {
     private val client = OkHttpClient()
     private var updateJob: Job? = null
-    private val serverIp = "192.168.1.33"
+    private var serverIp = "192.168.1.33"
 
     private val spanDark = "#f7f2f2"
     private val spanLight = "#141414"
@@ -61,6 +63,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var osUptimeTimeLabel: TextView
 
     private lateinit var spinner: Spinner
+    private lateinit var ipInputEditText: EditText
+    private lateinit var applyIpButton: Button
 
     data class DiskInfo(
         val fs: String,
@@ -87,13 +91,25 @@ class MainActivity : AppCompatActivity() {
 
         totalDiskLabel = findViewById(R.id.total_disk)
         freeDiskLabel = findViewById(R.id.free_disk)
-        spinner = findViewById(R.id.disk_spinner)
 
         osUptimeTimeLabel = findViewById(R.id.os_uptime_hours)
+
+        spinner = findViewById(R.id.disk_spinner)
+        ipInputEditText = findViewById(R.id.ip_input)
+        applyIpButton = findViewById(R.id.apply_ip)
 
         val batteryElements = listOf(isChargingLabel, percentChargingLabel, timeRemainingBatteryLabel)
         batteryElements.forEach { el ->
             el.visibility = View.VISIBLE
+        }
+        applyIpButton.setOnClickListener {
+            val newIp = ipInputEditText.text.toString().trim()
+            if (newIp.isNotEmpty()) {
+                serverIp = newIp
+                Toast.makeText(this, "IP-адрес обновлён: $serverIp", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Введите корректный IP", Toast.LENGTH_SHORT).show()
+            }
         }
 
         updateJob = CoroutineScope(Dispatchers.IO).launch {
