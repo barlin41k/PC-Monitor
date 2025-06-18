@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     private var serverIp = "192.168.1.33"
 
     private val spanDark = "#f7f2f2"
-    private val spanLight = "#141414"
+    private val spanLight = "#050505"
 
     private val isDarkTheme: Boolean
         get() = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES

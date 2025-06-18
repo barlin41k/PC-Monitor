@@ -52,7 +52,6 @@ app.get('/status', async (req, res) => {
                 total: (memory.total / 1073741824).toFixed(2),
                 used: ((memory.total - memory.available) / 1073741824).toFixed(2),
                 free: (memory.available / 1073741824).toFixed(2),
-                active: (memory.active / 1073741824).toFixed(2),
 
                 swap_total: (memory.swaptotal / 1073741824).toFixed(2),
                 swap_used: (memory.swapused / 1073741824).toFixed(2),

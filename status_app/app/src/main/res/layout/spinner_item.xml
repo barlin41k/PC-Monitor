@@ -3,5 +3,7 @@
     android:layout_height="wrap_content"
     android:textColor="?attr/colorOnBackground"
     android:padding="8dp"
-    android:textSize="16sp"
-    android:textStyle="bold"/>
+    android:textSize="20sp"
+    android:gravity="center"
+    android:textStyle="bold"
+    android:fontFamily="@font/inter_bold" />

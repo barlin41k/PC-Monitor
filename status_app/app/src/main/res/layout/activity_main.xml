@@ -16,7 +16,7 @@
         <EditText
             android:id="@+id/ip_input"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="45dp"
             android:hint="Введите IP-адрес хоста"
             android:textColor="?attr/colorOnBackground"
             android:textColorHint="?attr/colorOnBackground"
@@ -34,11 +34,14 @@
 
         <!-- Раздел: Процессор -->
         <TextView
+            android:id="@+id/cpu_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Процессор"
             android:textColor="?attr/colorOnBackground"
-            android:textSize="18sp"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="18sp"
+            android:autoSizeStepGranularity="2sp"
             android:textStyle="bold"
             android:paddingBottom="4dp"
             android:layout_marginTop="50dp"
@@ -71,7 +74,9 @@
             android:layout_height="wrap_content"
             android:text="Оперативная память"
             android:textColor="?attr/colorOnBackground"
-            android:textSize="18sp"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="18sp"
+            android:autoSizeStepGranularity="2sp"
             android:textStyle="bold"
             android:paddingBottom="4dp"
             android:fontFamily="@font/inter_bold"
@@ -129,7 +134,9 @@
             android:layout_height="wrap_content"
             android:text="Диск"
             android:textColor="?attr/colorOnBackground"
-            android:textSize="18sp"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="18sp"
+            android:autoSizeStepGranularity="2sp"
             android:textStyle="bold"
             android:paddingBottom="4dp"
             android:fontFamily="@font/inter_bold"
@@ -138,8 +145,9 @@
         <Spinner
             android:id="@+id/disk_spinner"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/spinner_bg" />
+            android:layout_height="48dp"
+            android:background="@drawable/spinner_bg"
+            android:popupBackground="?attr/colorPrimary" />
 
         <TextView
             android:id="@+id/total_disk"
@@ -168,7 +176,9 @@
             android:layout_height="wrap_content"
             android:text="Батарея"
             android:textColor="?attr/colorOnBackground"
-            android:textSize="18sp"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="18sp"
+            android:autoSizeStepGranularity="2sp"
             android:textStyle="bold"
             android:paddingBottom="4dp"
             android:fontFamily="@font/inter_bold"
@@ -208,7 +218,9 @@
             android:layout_height="wrap_content"
             android:text="Операционная система"
             android:textColor="?attr/colorOnBackground"
-            android:textSize="18sp"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="18sp"
+            android:autoSizeStepGranularity="2sp"
             android:textStyle="bold"
             android:paddingBottom="4dp"
             android:fontFamily="@font/inter_bold"

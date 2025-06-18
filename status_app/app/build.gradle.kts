@@ -10,10 +10,10 @@ android {
 
     defaultConfig {
         applicationId = "com.bxrlya.pcmonitor"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
