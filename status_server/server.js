@@ -2,11 +2,31 @@ const express = require('express');
 const os = require('os');
 const si = require('systeminformation');
 const cors = require('cors');
+const fs = require('fs').promises;
+const path = require('path');
+const toml = require('@iarna/toml');
+
+const infoPath = path.resolve(__dirname, 'info.toml');
 
 const app = express();
 app.use(cors());
 
 let trueIp = [];
+let config = {};
+let getCount = 0;
+const start_time = Date.now()
+let server;
+const defaultTOML = `
+# Всё из этого файла получается только при запуске server.js
+# Если вы изменили что-то во время его работы, перезапустите его
+[logs]
+
+do_get_log = true # Делать ли логи GET запросов? (true - да, false - нет, по умолчанию true)
+get_frequency = 120 # Частота логов GET запросов в секундах (минимум 5, 120 - по умолчанию)
+`;
+function getTime() {
+        return new Date().toTimeString().split(' ')[0];
+}
 
 async function init() {
     function isPrivateIp(ip) {
@@ -14,31 +34,80 @@ async function init() {
             /^192\.168\./.test(ip) ||
             /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(ip);
     }
-    console.log("Поиск локального IP...")
+    function maxReq(frequency) {
+        return (frequency/5).toFixed(0)
+    }
+
+    config = await loadTOML();
+    let frequency = config.logs?.get_frequency;
+    if (frequency < 5) {
+        console.log(`[${getTime()}]: Минимальная задержка логов GET: 5с`)
+        await fs.writeFile(infoPath, defaultTOML);
+        console.log(`[${getTime()}]: Файл info.toml пересоздан`)
+        config = await loadTOML();
+        frequency = config.logs?.get_frequency;
+    }
+    if (frequency && config.logs.do_get_log) {
+        setInterval(() => {
+            console.log(`[${getTime()}]: За ${frequency}с было GET-запросов: ${getCount}/${maxReq(frequency)}`);
+            getCount = 0;
+        }, frequency*1000)
+    }
+
+    console.log(`[${getTime()}]: Поиск локального IP...`)
+    const start_finder = Date.now();
     const data = await si.networkInterfaces();
     trueIp = data
         .filter(element => !element.virtual && (element.type === "wired" || element.type === "wireless"))
         .map(element => element.ip4)
         .filter(ip => isPrivateIp(ip));
 
-    console.clear()
+    const duration_finder = ((Date.now() - start_finder) / 1000).toFixed(2);
+    console.log(`[${getTime()}]: Поиск осуществлялся ${duration_finder}с`);
+
     if (trueIp.length > 0) {
-        console.log(`Локальный IP хоста: ${trueIp[0]}`);
+        console.log(`[${getTime()}]: Локальный IP хоста: ${trueIp[0]}`);
     } else {
-        console.log('Локальный IP не найден — возможно, устройство не подключено к сети или нет активного IP-адреса.');
+        console.log(`[${getTime()}]: Локальный IP не найден — возможно, устройство не подключено к сети или нет активного IP-адреса.`);
     }
 
     const PORT = 8080;
     const HOST = '0.0.0.0';
-    app.listen(PORT, HOST, () => {
-        console.log(`Сервер запущен: http://${trueIp[0] || 'localhost'}:${PORT}/status`);
+    server = app.listen(PORT, HOST, () => {
+        console.log(`[${getTime()}]: Сервер запущен: http://${trueIp[0] || 'localhost'}:${PORT}/status`);
     });
+}
+async function loadTOML() {
+    try {
+        const data = await fs.readFile(infoPath, 'utf-8');
+        const parsed = toml.parse(data);
+        console.log(`-- Для конфигурации см. info.toml --`)
+        if (parsed.logs && typeof parsed.logs.get_frequency === 'number') {
+            console.log(`[${getTime()}]: Получены данные из info.toml`);
+            return parsed;
+        } else {
+            console.log(`[${getTime()}]: Файл info.toml повреждён`);
+            await fs.writeFile(infoPath, defaultTOML);
+            console.log(`[${getTime()}]: Файл info.toml пересоздан`);
+            return toml.parse(defaultTOML);
+        }
+    } catch (err) {
+        if (err.code === 'ENOENT') {
+            console.log(`[${getTime()}]: Файл info.toml не найден`);
+            await fs.writeFile(infoPath, defaultTOML);
+            return toml.parse(defaultTOML);
+        } else {
+            throw err;
+        }
+    }
 }
 
 init();
 
 app.get('/status', async (req, res) => {
     try {
+        getCount++;
+
         const cpu = await si.currentLoad();
         const memory = await si.mem();
         const disks = await si.fsSize();
@@ -74,7 +143,31 @@ app.get('/status', async (req, res) => {
             }
         });
     } catch (err) {
-        console.error("Ошибка:", err);
-        res.status(500).send('Error: ' + err.message);
+        console.error(`[${getTime()}]: Ошибка:`, err);
+        res.status(500).send('Ошибка: ' + err.message);
     }
 });
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
+
+function shutdown() {
+    const end_time = Date.now();
+    const work_time_ms = end_time - start_time;
+    const total_seconds = Math.floor(work_time_ms / 1000);
+    const work_hours = Math.floor(total_seconds / 3600);
+    const remaining_seconds = total_seconds % 3600;
+    const work_minutes = Math.floor(remaining_seconds / 60);
+    const work_seconds = remaining_seconds % 60;
+
+    console.log(`\n[${getTime()}]: Общее время работы: ${work_hours}ч ${work_minutes}мин ${work_seconds}с`);
+    console.log(`[${getTime()}]: Завершение работы сервера...`);
+    server.close(() => {
+        console.log(`[${getTime()}]: Сервер остановлен.`);
+        process.exit(0);
+    });
+    setTimeout(() => {
+        console.error(`[${getTime()}]: Принудительное завершение!`);
+        process.exit(1);
+    }, 5000);
+}

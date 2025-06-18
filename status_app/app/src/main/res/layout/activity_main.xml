@@ -35,7 +35,7 @@
         <!-- Раздел: Процессор -->
         <TextView
             android:id="@+id/cpu_name"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Процессор"
             android:textColor="?attr/colorOnBackground"
@@ -46,7 +46,7 @@
             android:paddingBottom="4dp"
             android:layout_marginTop="50dp"
             android:fontFamily="@font/inter_bold"
-            android:layout_gravity="center" />
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/cpu_load"
@@ -70,7 +70,7 @@
 
         <!-- Раздел: Оперативная память -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Оперативная память"
             android:textColor="?attr/colorOnBackground"
@@ -80,7 +80,7 @@
             android:textStyle="bold"
             android:paddingBottom="4dp"
             android:fontFamily="@font/inter_bold"
-            android:layout_gravity="center" />
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/total_mem"
@@ -130,7 +130,7 @@
 
         <!-- Раздел: Диск -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Диск"
             android:textColor="?attr/colorOnBackground"
@@ -140,7 +140,7 @@
             android:textStyle="bold"
             android:paddingBottom="4dp"
             android:fontFamily="@font/inter_bold"
-            android:layout_gravity="center" />
+            android:gravity="center" />
 
         <Spinner
             android:id="@+id/disk_spinner"
@@ -172,7 +172,7 @@
         <!-- Раздел: Батарея -->
         <TextView
             android:id="@+id/battery_mainlabel"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Батарея"
             android:textColor="?attr/colorOnBackground"
@@ -182,7 +182,7 @@
             android:textStyle="bold"
             android:paddingBottom="4dp"
             android:fontFamily="@font/inter_bold"
-            android:layout_gravity="center" />
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/is_charging"
@@ -214,7 +214,7 @@
 
         <!-- Раздел: ОС-->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Операционная система"
             android:textColor="?attr/colorOnBackground"
@@ -224,7 +224,7 @@
             android:textStyle="bold"
             android:paddingBottom="4dp"
             android:fontFamily="@font/inter_bold"
-            android:layout_gravity="center" />
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/os_uptime_hours"
