@@ -1,5 +1,8 @@
 package com.bxrlya.pcmonitor
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -10,6 +13,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,8 +34,12 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 class MainActivity : AppCompatActivity() {
+
+    // --- ПЕРЕМЕННЫЕ
     private val client = OkHttpClient()
     private var updateJob: Job? = null
+
+    // Тестовый айпи
     private var serverIp = "192.168.1.33"
 
     private lateinit var cpuLoadLabel: TextView
@@ -41,7 +49,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var totalSwapLabel: TextView
     private lateinit var freeSwapLabel: TextView
 
-    private lateinit var mainlabelBattery: TextView
+    private lateinit var mainBatteryLabel: TextView
     private lateinit var isChargingLabel: TextView
     private lateinit var percentChargingLabel: TextView
     private lateinit var timeRemainingBatteryLabel: TextView
@@ -55,17 +63,29 @@ class MainActivity : AppCompatActivity() {
     private lateinit var ipInputEditText: EditText
     private lateinit var applyIpButton: Button
 
+    private var diskList: List<DiskInfo> = emptyList()
+    private lateinit var diskAdapter: ArrayAdapter<String>
+
     data class DiskInfo(
         val fs: String,
         val size: Double,
         val used: Double,
         val free: Double
     )
+    // --- КОНЕЦ
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1)
+            }
+        }
+
+        // --- ПЕРЕМЕННЫЕ ЭЛЕМЕНТОВ
         cpuLoadLabel = findViewById(R.id.cpu_load)
 
         totalMemLabel = findViewById(R.id.total_mem)
@@ -73,7 +93,7 @@ class MainActivity : AppCompatActivity() {
         totalSwapLabel = findViewById(R.id.total_swap)
         freeSwapLabel = findViewById(R.id.free_swap)
 
-        mainlabelBattery = findViewById(R.id.battery_mainlabel)
+        mainBatteryLabel = findViewById(R.id.battery_mainlabel)
         isChargingLabel = findViewById(R.id.is_charging)
         percentChargingLabel = findViewById(R.id.percent_charging)
         timeRemainingBatteryLabel = findViewById(R.id.time_remaining_battery)
@@ -100,10 +120,40 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Введите корректный IP", Toast.LENGTH_SHORT).show()
             }
         }
+        // --- КОНЕЦ
+
+        var notifiedHighCpu = false
+        var notifiedHighMem = false
+        var notifiedHighDisk = false
+
+
+        // --- SPINNER ДИСКОВ
+        diskAdapter = ArrayAdapter(
+            this,
+            R.layout.spinner_item,
+            mutableListOf<String>()
+        )
+        diskAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+        spinner.adapter = diskAdapter
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                val disk = diskList.getOrNull(position) ?: return
+                val percentUsed = if (disk.size != 0.0) disk.used / disk.size * 100 else 0.0
+                val percentFree = if (disk.size != 0.0) disk.free / disk.size * 100 else 0.0
+
+                totalDiskLabel.text = getString(R.string.disk_used, disk.used, disk.size, percentUsed).coloredSpan(0, 7, this@MainActivity)
+                freeDiskLabel.text = getString(R.string.disk_free, disk.free, percentFree).coloredSpan(0, 9, this@MainActivity)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+        // --- КОНЕЦ
 
         updateJob = CoroutineScope(Dispatchers.IO).launch {
             while (isActive) {
                 try {
+                    // --- ПОЛУЧЕНИЕ ДАННЫХ
                     val url = "http://$serverIp:8080/status"
                     val request = Request.Builder().url(url).build()
                     val response = client.newCall(request).execute()
@@ -117,7 +167,7 @@ class MainActivity : AppCompatActivity() {
                     val osTopic = json["os"]?.jsonObject
                     val diskArray = json["disk"]?.jsonArray ?: continue
 
-                    val diskList = diskArray.map { el ->
+                    diskList = diskArray.map { el ->
                         val obj = el.jsonObject
                         DiskInfo(
                             fs = obj["fs"]?.jsonPrimitive?.content ?: "unknown",
@@ -142,25 +192,67 @@ class MainActivity : AppCompatActivity() {
                     val remainingTime = batteryTopic?.get("remaining")?.jsonPrimitive?.doubleOrNull
 
                     val osUptimeHours = osTopic?.get("up")?.jsonPrimitive?.int ?: 0
+                    // --- КОНЕЦ
 
                     withContext(Dispatchers.Main) {
+                        // --- ПРОВЕРКА БАТАРЕИ
                         if (!hasBattery && isChargingLabel.isVisible) {
                             batteryElements.forEach { el ->
                                 el.visibility = View.GONE
                             }
-                            if (mainlabelBattery.text != getString(R.string.battery_is_not))
-                                mainlabelBattery.text = getString(R.string.battery_is_not)
+                            if (mainBatteryLabel.text != getString(R.string.battery_is_not))
+                                mainBatteryLabel.text = getString(R.string.battery_is_not)
                         } else {
                             batteryElements.forEach { el ->
                                 el.visibility = View.VISIBLE
                             }
                         }
+                        // --- КОНЕЦ
 
+                        // --- SPINNER СОХРАНЕНИЕ ВЫБОРА ДИСКА
+                        diskAdapter.clear()
+                        diskAdapter.addAll(diskList.map { "Диск ${it.fs}" })
+                        diskAdapter.notifyDataSetChanged()
+
+                        val selectedFs = spinner.selectedItem?.toString()
+                        val indexToSelect = diskList.indexOfFirst { "Диск ${it.fs}" == selectedFs }.takeIf { it >= 0 } ?: 0
+                        spinner.setSelection(indexToSelect)
+
+                        val selectedDisk = diskList.getOrNull(indexToSelect)
+                        if (selectedDisk != null) {
+                            val percentUsed = if (selectedDisk.size != 0.0) selectedDisk.used / selectedDisk.size * 100 else 0.0
+                            val percentFree = if (selectedDisk.size != 0.0) selectedDisk.free / selectedDisk.size * 100 else 0.0
+
+                            totalDiskLabel.text = getString(R.string.disk_used, selectedDisk.used, selectedDisk.size, percentUsed).coloredSpan(0, 7, this@MainActivity)
+                            freeDiskLabel.text = getString(R.string.disk_free, selectedDisk.free, percentFree).coloredSpan(0, 9, this@MainActivity)
+                        }
+                        // --- КОНЕЦ
+
+                        // --- РАСЧЕТ ПРОЦЕНТОВ
                         val memPercent1 = if (totalMemory != 0.0) usedMemory / totalMemory * 100 else 0.0
                         val memPercent2 = if (totalMemory != 0.0) freeMemory / totalMemory * 100 else 0.0
                         val swapPercent1 = if (totalSwap != 0.0) usedSwap / totalSwap * 100 else 0.0
                         val swapPercent2 = if (totalSwap != 0.0) freeSwap / totalSwap * 100 else 0.0
+                        // --- КОНЕЦ
 
+                        // --- ПРОВЕРКА ЗАГРУЖЕННОСТИ
+                        notifiedHighCpu = checkThreshold(cpuLoad, 90.0, notifiedHighCpu) {
+                            sendNotification("Высокая загрузка CPU", "Загрузка CPU достигла ${cpuLoad.toInt()}%!")
+                        }
+                        notifiedHighMem = checkThreshold(memPercent1, 90.0, notifiedHighMem) {
+                            sendNotification("Высокое использование ОЗУ", "Используется ${memPercent1.toInt()}% ОЗУ!")
+                        }
+
+                        //println(selectedDisk)
+                        val diskPercentUsed = selectedDisk?.let { disk ->
+                            if (disk.size != 0.0) disk.used / disk.size * 100 else 0.0
+                        } ?: 0.0
+                        notifiedHighDisk = checkThreshold(diskPercentUsed, 90.0, notifiedHighDisk) {
+                            sendNotification("Мало места на диске", "Диск ${selectedDisk?.fs ?: "неизвестно"} заполнен на ${diskPercentUsed.toInt()}%")
+                        }
+                        // --- КОНЕЦ
+
+                        // --- ОБНОВЛЕНИЕ ДАННЫХ
                         cpuLoadLabel.text = getString(R.string.cpu_load, cpuLoad).coloredSpan(0, 20, this@MainActivity)
 
                         totalMemLabel.text = getString(R.string.memory_usage, usedMemory, totalMemory, memPercent1).coloredSpan(0, 13, this@MainActivity)
@@ -188,33 +280,8 @@ class MainActivity : AppCompatActivity() {
                             else -> getString(R.string.time_remaining_battery_unknown).coloredSpan(0, 24, this@MainActivity)
                         }
 
-                        val selectedFs = spinner.selectedItem?.toString()
-
-                        val adapter = ArrayAdapter(
-                            this@MainActivity,
-                            R.layout.spinner_item,
-                            diskList.map { "Диск ${it.fs}" }
-                        )
-                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
-                        spinner.adapter = adapter
-
-                        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                                val disk = diskList[position]
-                                val percentUsed = if (disk.size != 0.0) disk.used / disk.size * 100 else 0.0
-                                val percentFree = if (disk.size != 0.0) disk.free / disk.size * 100 else 0.0
-
-                                totalDiskLabel.text = getString(R.string.disk_used, disk.used, disk.size, percentUsed).coloredSpan(0, 7, this@MainActivity)
-                                freeDiskLabel.text = getString(R.string.disk_free, disk.free, percentFree).coloredSpan(0, 9, this@MainActivity)
-                            }
-
-                            override fun onNothingSelected(parent: AdapterView<*>) {}
-                        }
-
-                        val indexToSelect = diskList.indexOfFirst { it.fs == selectedFs }.takeIf { it >= 0 } ?: 0
-                        spinner.setSelection(indexToSelect)
-
                         osUptimeTimeLabel.text = getString(R.string.uptime, getHourString(osUptimeHours / 3600)).coloredSpan(0, 12, this@MainActivity)
+                        // --- КОНЕЦ
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {

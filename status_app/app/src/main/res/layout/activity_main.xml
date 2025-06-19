@@ -58,16 +58,6 @@
             android:paddingBottom="12dp"
             android:layout_gravity="center" />
 
-        <!-- <TextView
-            android:id="@+id/cpu_temp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Температура процессора: ...°C"
-            android:textColor="?attr/colorSecondary"
-            android:paddingBottom="12dp"
-            android:layout_gravity="center" /> -->
-
         <!-- Раздел: Оперативная память -->
         <TextView
             android:layout_width="match_parent"
@@ -236,4 +226,6 @@
             android:layout_gravity="center" />
 
     </LinearLayout>
+
+
 </ScrollView>

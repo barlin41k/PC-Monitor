@@ -25,7 +25,14 @@ do_get_log = true # Делать ли логи GET запросов? (true - д�
 get_frequency = 120 # Частота логов GET запросов в секундах (минимум 5, 120 - по умолчанию)
 `;
 function getTime() {
-        return new Date().toTimeString().split(' ')[0];
+    return new Date().toTimeString().split(' ')[0];
+}
+function makeLog(str, error=false) {
+    if (!error) {
+        console.log(`[${getTime()}]: ${str}`)
+    } else {
+        console.error(`[${getTime()}]: ${str}`)
+    }
 }
 
 async function init() {
@@ -41,7 +48,7 @@ async function init() {
     config = await loadTOML();
     let frequency = config.logs?.get_frequency;
     if (frequency < 5) {
-        console.log(`[${getTime()}]: Минимальная задержка логов GET: 5с`)
+        makeLog("Минимальная задержка логов GET: 5с")
         await fs.writeFile(infoPath, defaultTOML);
         console.log(`[${getTime()}]: Файл info.toml пересоздан`)
         config = await loadTOML();
@@ -49,12 +56,12 @@ async function init() {
     }
     if (frequency && config.logs.do_get_log) {
         setInterval(() => {
-            console.log(`[${getTime()}]: За ${frequency}с было GET-запросов: ${getCount}/${maxReq(frequency)}`);
+            makeLog(`За ${frequency}с было GET-запросов: ${getCount}/${maxReq(frequency)}`)
             getCount = 0;
         }, frequency*1000)
     }
 
-    console.log(`[${getTime()}]: Поиск локального IP...`)
+    makeLog(`Поиск локального IP...`)
     const start_finder = Date.now();
     const data = await si.networkInterfaces();
     trueIp = data
@@ -66,34 +73,34 @@ async function init() {
     console.log(`[${getTime()}]: Поиск осуществлялся ${duration_finder}с`);
 
     if (trueIp.length > 0) {
-        console.log(`[${getTime()}]: Локальный IP хоста: ${trueIp[0]}`);
+        makeLog(`Локальный IP хоста: ${trueIp[0]}`)
     } else {
-        console.log(`[${getTime()}]: Локальный IP не найден — возможно, устройство не подключено к сети или нет активного IP-адреса.`);
+        makeLog(`Локальный IP не найден — возможно, устройство не подключено к сети или нет активного IP-адреса.`)
     }
 
     const PORT = 8080;
     const HOST = '0.0.0.0';
     server = app.listen(PORT, HOST, () => {
-        console.log(`[${getTime()}]: Сервер запущен: http://${trueIp[0] || 'localhost'}:${PORT}/status`);
+        makeLog(`Сервер запущен: http://${trueIp[0] || 'localhost'}:${PORT}/status`)
     });
 }
 async function loadTOML() {
     try {
         const data = await fs.readFile(infoPath, 'utf-8');
         const parsed = toml.parse(data);
-        console.log(`-- Для конфигурации см. info.toml --`)
+        console.log(`--- Для конфигурации см. info.toml ---`)
         if (parsed.logs && typeof parsed.logs.get_frequency === 'number') {
-            console.log(`[${getTime()}]: Получены данные из info.toml`);
+            makeLog(`Получены данные из info.toml`)
             return parsed;
         } else {
-            console.log(`[${getTime()}]: Файл info.toml повреждён`);
+            makeLog(`Файл info.toml повреждён`)
             await fs.writeFile(infoPath, defaultTOML);
-            console.log(`[${getTime()}]: Файл info.toml пересоздан`);
+            makeLog(`Файл info.toml пересоздан`)
             return toml.parse(defaultTOML);
         }
     } catch (err) {
         if (err.code === 'ENOENT') {
-            console.log(`[${getTime()}]: Файл info.toml не найден`);
+            makeLog(`Файл info.toml не найден`)
             await fs.writeFile(infoPath, defaultTOML);
             return toml.parse(defaultTOML);
         } else {
@@ -143,7 +150,7 @@ app.get('/status', async (req, res) => {
             }
         });
     } catch (err) {
-        console.error(`[${getTime()}]: Ошибка:`, err);
+        makeLog(`Ошибка: ${err}`)
         res.status(500).send('Ошибка: ' + err.message);
     }
 });
@@ -160,14 +167,14 @@ function shutdown() {
     const work_minutes = Math.floor(remaining_seconds / 60);
     const work_seconds = remaining_seconds % 60;
 
-    console.log(`\n[${getTime()}]: Общее время работы: ${work_hours}ч ${work_minutes}мин ${work_seconds}с`);
-    console.log(`[${getTime()}]: Завершение работы сервера...`);
+    makeLog(`Общее время работы: ${work_hours}ч ${work_minutes}мин ${work_seconds}с`)
+    makeLog(`Завершение работы сервера...`)
     server.close(() => {
-        console.log(`[${getTime()}]: Сервер остановлен.`);
+        makeLog(`Сервер остановлен`)
         process.exit(0);
     });
     setTimeout(() => {
-        console.error(`[${getTime()}]: Принудительное завершение!`);
+        makeLog(`Принудительное завершение!`)
         process.exit(1);
     }, 5000);
 }

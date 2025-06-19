@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Монитор -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M8,20h92v60h-92z" />
+
+    <!-- Подставка монитора -->
+    <path
+        android:fillColor="#CCCCCC"
+        android:pathData="M48,80h12v8h-12z" />
+
+    <!-- Нижняя подставка -->
+    <path
+        android:fillColor="#BBBBBB"
+        android:pathData="M38,88h32v6h-32z" />
+
+</vector>
