@@ -64,7 +64,7 @@
 ```bash
   node status_server/server.js
 ```
-6. Установить мобильное приложение (можно найти в [последних релизах](https://github.com/barlin41k/PC-Monitor/releases))
+6. Установить мобильное приложение (можно найти в [последних релизах](https://github.com/barlin41k/PC-Monitor/releases)), гарантии его безопасности [см. тут](https://github.com/barlin41k/PC-Monitor?tab=readme-ov-file#-%D0%B3%D0%B0%D1%80%D0%B0%D0%BD%D1%82%D0%B8%D0%B8)
 - *чтобы всё работало, требуется подключить компьютер и телефон к одной сети*
 7. В мобильном приложении ввести IP-адрес, полученный вами в консоли
 8. Просмотреть конфигурации для лучшего опыта -> `status_server/info.toml`
