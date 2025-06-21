@@ -11,9 +11,12 @@ import androidx.core.graphics.toColorInt
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 // --- ОКРАСКА ЧАСТИ ТЕКСТА В ВЫДЕЛЯЮЩИЙ ЦВЕТ
 fun String.coloredSpan(start: Int, end: Int, context: Context): Spannable {
@@ -91,5 +94,31 @@ fun checkThreshold(
         false
     } else {
         notifiedFlag
+    }
+}
+
+// --- АЛЕРТ НА ОШИБКИ
+var alertDialogErrorIsShowing: AlertDialog? = null
+suspend fun showErrorDialog(
+    context: Context,
+    title: String,
+    message: String
+) {
+    withContext(Dispatchers.Main) {
+        if (alertDialogErrorIsShowing?.isShowing == true) {
+            return@withContext
+        }
+
+        alertDialogErrorIsShowing = AlertDialog.Builder(context)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("ОК") { dialog, _ ->
+                dialog.dismiss()
+                alertDialogErrorIsShowing = null
+            }
+            .setOnDismissListener {
+                alertDialogErrorIsShowing = null
+            }
+            .show()
     }
 }

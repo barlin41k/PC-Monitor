@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="colorSpinnerBackground" format="color" />
+    <attr name="colorSpinnerOutline" format="color" />
+    <attr name="colorCategory" format="color" />
+    <attr name="colorButtonBackground" format="color" />
+</resources>

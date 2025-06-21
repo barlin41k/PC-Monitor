@@ -41,9 +41,6 @@ async function init() {
             /^192\.168\./.test(ip) ||
             /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(ip);
     }
-    function maxReq(frequency) {
-        return (frequency/5).toFixed(0)
-    }
 
     config = await loadTOML();
     let frequency = config.logs?.get_frequency;
@@ -56,7 +53,7 @@ async function init() {
     }
     if (frequency && config.logs.do_get_log) {
         setInterval(() => {
-            makeLog(`За ${frequency}с было GET-запросов: ${getCount}/${maxReq(frequency)}`)
+            makeLog(`За ${frequency}с было ${getCount} GET-запросов`)
             getCount = 0;
         }, frequency*1000)
     }

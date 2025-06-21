@@ -1,13 +1,22 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.PCMonitor" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="backgroundColor">#805fc2</item> <!-- бг -->
-        <item name="colorOnBackground">#000000</item> <!-- категория + спиннер текст -->
-        <item name="colorSecondary">#4c4460</item> <!-- элементы категории -->
-        <item name="colorPrimary">#8c68d4</item> <!-- фон спиннера -->
-        <item name="colorAccent">#8c68d4</item> <!-- обводка спиннера -->
+    <style name="Base.Theme.PCMonitor" parent="Theme.Material3.DayNight">
+        <item name="windowActionBar">false</item> <!-- Отключить дефолтный бар -->
+        <item name="windowNoTitle">true</item> <!-- Убрать статус сверху -->
+        <item name="android:windowFullscreen">true</item> <!-- Фулл экран -->
+
+        <item name="backgroundColor">#805fc2</item> <!-- Фон -->
+        <item name="colorOnBackground">#000000</item> <!-- Категория + спиннер текст -->
+
+        <item name="colorCategory">#4c4460</item> <!-- Элементы категории -->
+        <item name="colorSpinnerBackground">#8c68d4</item> <!-- фон спиннера -->
+        <item name="colorSpinnerOutline">#8c68d4</item> <!-- обводка спиннера -->
+
+        <item name="colorPrimary">#6542ac</item> <!-- Цвет фона тулбара -->
+        <item name="colorOnPrimary">?attr/colorOnBackground</item> <!-- Цвет иконок и текста тулбара -->
+
+        <item name="colorButtonBackground">?colorSpinnerBackground</item> <!-- Цвет кнопки -->
     </style>
+
     <style name="Theme.PCMonitor" parent="Base.Theme.PCMonitor" />
+
 </resources>

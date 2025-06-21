@@ -1,231 +1,240 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/backgroundColor"
     tools:context=".MainActivity">
 
-    <LinearLayout
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/main_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:titleTextColor="?attr/colorOnPrimary"
+        app:title="@string/app_name" />
 
-        <EditText
-            android:id="@+id/ip_input"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:hint="Введите IP-адрес хоста"
-            android:textColor="?attr/colorOnBackground"
-            android:textColorHint="?attr/colorOnBackground"
-            android:inputType="text"
-            android:textStyle="italic"
-            android:gravity="center" />
+    <ScrollView
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/backgroundColor"
+        tools:context=".MainActivity">
 
-        <Button
-            android:id="@+id/apply_ip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Применить"
-            android:textColor="?attr/colorOnBackground"
-            android:layout_gravity="center"/>
-
-        <!-- Раздел: Процессор -->
-        <TextView
-            android:id="@+id/cpu_name"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Процессор"
-            android:textColor="?attr/colorOnBackground"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="18sp"
-            android:autoSizeStepGranularity="2sp"
-            android:textStyle="bold"
-            android:paddingBottom="4dp"
-            android:layout_marginTop="50dp"
-            android:fontFamily="@font/inter_bold"
-            android:gravity="center" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <TextView
-            android:id="@+id/cpu_load"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Загрузка процессора: ...%"
-            android:textColor="?attr/colorSecondary"
-            android:paddingBottom="12dp"
-            android:layout_gravity="center" />
+            <EditText
+                android:id="@+id/ip_input"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:hint="@string/ip_input"
+                android:textColor="?attr/colorOnBackground"
+                android:textColorHint="?attr/colorOnBackground"
+                android:inputType="text"
+                android:textStyle="italic"
+                android:fontFamily="@font/inter_italic"
+                android:gravity="center" />
 
-        <!-- Раздел: Оперативная память -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Оперативная память"
-            android:textColor="?attr/colorOnBackground"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="18sp"
-            android:autoSizeStepGranularity="2sp"
-            android:textStyle="bold"
-            android:paddingBottom="4dp"
-            android:fontFamily="@font/inter_bold"
-            android:gravity="center" />
+            <Button
+                android:id="@+id/apply_ip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/apply"
+                android:backgroundTint="?attr/colorButtonBackground"
+                android:textColor="?attr/colorOnBackground"
+                android:layout_gravity="center"/>
 
-        <TextView
-            android:id="@+id/total_mem"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Загрузка ОЗУ: ... ГБ"
-            android:textColor="?attr/colorSecondary"
-            android:layout_gravity="center" />
+            <!-- Раздел: Процессор -->
+            <TextView
+                android:id="@+id/cpu_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/cpu"
+                android:textColor="?attr/colorOnBackground"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="18sp"
+                android:autoSizeStepGranularity="2sp"
+                android:textStyle="bold"
+                android:paddingBottom="4dp"
+                android:layout_marginTop="30dp"
+                android:fontFamily="@font/inter_bold"
+                android:gravity="center" />
 
-        <TextView
-            android:id="@+id/free_mem"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Свободное ОЗУ: ... ГБ"
-            android:textColor="?attr/colorSecondary"
-            android:layout_gravity="center" />
+            <TextView
+                android:id="@+id/cpu_load"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:text="@string/cpu_load_main"
+                android:textColor="?attr/colorCategory"
+                android:paddingBottom="12dp"
+                android:layout_gravity="center" />
 
-        <!-- <TextView
-            android:id="@+id/cache_mem"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Кешированное ОЗУ: ... ГБ"
-            android:textColor="?attr/colorSecondary"
-            android:layout_gravity="center" /> -->
+            <!-- Раздел: Оперативная память -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/ram"
+                android:textColor="?attr/colorOnBackground"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="18sp"
+                android:autoSizeStepGranularity="2sp"
+                android:textStyle="bold"
+                android:paddingBottom="4dp"
+                android:fontFamily="@font/inter_bold"
+                android:gravity="center" />
 
-        <TextView
-            android:id="@+id/total_swap"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Загрузка файла подкачки: ... ГБ"
-            android:textColor="?attr/colorSecondary"
-            android:layout_gravity="center" />
+            <TextView
+                android:id="@+id/total_mem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:text="@string/memory_usage_main"
+                android:textColor="?attr/colorCategory"
+                android:layout_gravity="center" />
 
-        <TextView
-            android:id="@+id/free_swap"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Свободно в файле подкачки: ... ГБ"
-            android:textColor="?attr/colorSecondary"
-            android:layout_gravity="center"
-            android:paddingBottom="12dp" />
+            <TextView
+                android:id="@+id/free_mem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:text="@string/free_memory_main"
+                android:textColor="?attr/colorCategory"
+                android:layout_gravity="center" />
 
-        <!-- Раздел: Диск -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Диск"
-            android:textColor="?attr/colorOnBackground"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="18sp"
-            android:autoSizeStepGranularity="2sp"
-            android:textStyle="bold"
-            android:paddingBottom="4dp"
-            android:fontFamily="@font/inter_bold"
-            android:gravity="center" />
+            <TextView
+                android:id="@+id/total_swap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:text="@string/swap_usage_main"
+                android:textColor="?attr/colorCategory"
+                android:layout_gravity="center" />
 
-        <Spinner
-            android:id="@+id/disk_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@drawable/spinner_bg"
-            android:popupBackground="?attr/colorPrimary" />
+            <TextView
+                android:id="@+id/free_swap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:text="@string/swap_free_main"
+                android:textColor="?attr/colorCategory"
+                android:layout_gravity="center"
+                android:paddingBottom="12dp" />
 
-        <TextView
-            android:id="@+id/total_disk"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Занято на всех дисках: ... ГБ"
-            android:textColor="?attr/colorSecondary"
-            android:layout_marginTop="6dp"
-            android:layout_gravity="center" />
+            <!-- Раздел: Диск -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/disk"
+                android:textColor="?attr/colorOnBackground"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="18sp"
+                android:autoSizeStepGranularity="2sp"
+                android:textStyle="bold"
+                android:paddingBottom="4dp"
+                android:fontFamily="@font/inter_bold"
+                android:gravity="center" />
 
-        <TextView
-            android:id="@+id/free_disk"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Свободно на всех дисках: ... ГБ"
-            android:textColor="?attr/colorSecondary"
-            android:layout_gravity="center"
-            android:paddingBottom="12dp" />
+            <Spinner
+                android:id="@+id/disk_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/spinner_bg"
+                android:popupBackground="?attr/colorSpinnerBackground" />
 
-        <!-- Раздел: Батарея -->
-        <TextView
-            android:id="@+id/battery_mainlabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Батарея"
-            android:textColor="?attr/colorOnBackground"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="18sp"
-            android:autoSizeStepGranularity="2sp"
-            android:textStyle="bold"
-            android:paddingBottom="4dp"
-            android:fontFamily="@font/inter_bold"
-            android:gravity="center" />
+            <TextView
+                android:id="@+id/total_disk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:text="@string/disk_used_main"
+                android:textColor="?attr/colorCategory"
+                android:layout_marginTop="6dp"
+                android:layout_gravity="center" />
 
-        <TextView
-            android:id="@+id/is_charging"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Заряжается ли?..."
-            android:textColor="?attr/colorSecondary"
-            android:layout_gravity="center" />
+            <TextView
+                android:id="@+id/free_disk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:text="@string/disk_free_main"
+                android:textColor="?attr/colorCategory"
+                android:layout_gravity="center"
+                android:paddingBottom="12dp" />
 
-        <TextView
-            android:id="@+id/percent_charging"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Процент зарядки: ...%"
-            android:textColor="?attr/colorSecondary"
-            android:layout_gravity="center"/>
+            <!-- Раздел: Батарея -->
+            <TextView
+                android:id="@+id/battery_mainlabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/battery"
+                android:textColor="?attr/colorOnBackground"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="18sp"
+                android:autoSizeStepGranularity="2sp"
+                android:textStyle="bold"
+                android:paddingBottom="4dp"
+                android:fontFamily="@font/inter_bold"
+                android:gravity="center" />
 
-        <TextView
-            android:id="@+id/time_remaining_battery"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Осталось времени работы: ...мин"
-            android:textColor="?attr/colorSecondary"
-            android:layout_gravity="center"
-            android:paddingBottom="8dp" />
+            <TextView
+                android:id="@+id/is_charging"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:text="@string/battery_is_not_main"
+                android:textColor="?attr/colorCategory"
+                android:layout_gravity="center" />
 
-        <!-- Раздел: ОС-->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Операционная система"
-            android:textColor="?attr/colorOnBackground"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="18sp"
-            android:autoSizeStepGranularity="2sp"
-            android:textStyle="bold"
-            android:paddingBottom="4dp"
-            android:fontFamily="@font/inter_bold"
-            android:gravity="center" />
+            <TextView
+                android:id="@+id/percent_charging"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:text="@string/battery_status_charging_main"
+                android:textColor="?attr/colorCategory"
+                android:layout_gravity="center"/>
 
-        <TextView
-            android:id="@+id/os_uptime_hours"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/inter_bold"
-            android:text="Время работы: ... часов"
-            android:textColor="?attr/colorSecondary"
-            android:layout_gravity="center" />
+            <TextView
+                android:id="@+id/time_remaining_battery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:text="@string/time_remaining_battery_main"
+                android:textColor="?attr/colorCategory"
+                android:layout_gravity="center"
+                android:paddingBottom="8dp" />
 
-    </LinearLayout>
+            <!-- Раздел: ОС-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/os"
+                android:textColor="?attr/colorOnBackground"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="18sp"
+                android:autoSizeStepGranularity="2sp"
+                android:textStyle="bold"
+                android:paddingBottom="4dp"
+                android:fontFamily="@font/inter_bold"
+                android:gravity="center" />
+
+            <TextView
+                android:id="@+id/os_uptime_hours"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/inter_bold"
+                android:text="@string/uptime_main"
+                android:textColor="?attr/colorCategory"
+                android:layout_gravity="center" />
+
+        </LinearLayout>
+    </ScrollView>
 
 
-</ScrollView>
+</LinearLayout>

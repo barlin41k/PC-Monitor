@@ -1,15 +1,48 @@
 <resources>
     <string name="app_name" translatable="false">PC Monitor</string>
 
+    <string name="ip_input">Введите IP-адрес хоста</string>
+
+    <string name="apply">Применить</string>
+
+    <string name="cpu">Процессор</string>
+    <string name="ram">Оперативная память</string>
+    <string name="disk">Диск</string>
+    <string name="battery">Батарея</string>
+    <string name="os">Операционная система</string>
+
+    <!-- Процессор -->
+    <string name="cpu_load_main">Загрузка процессора: …%</string>
+
     <string name="cpu_load">Загрузка процессора: %1$.2f%%</string>
+    <!-- Конец -->
+
+    <!-- ОЗУ -->
+    <string name="memory_usage_main">Загрузка ОЗУ: … ГБ</string>
+    <string name="free_memory_main">Свободное ОЗУ: … ГБ</string>
+    <string name="swap_usage_main">Загрузка файла подкачки: … ГБ</string>
+    <string name="swap_free_main">Свободно в файле подкачки: … ГБ</string>
 
     <string name="memory_usage">Загрузка ОЗУ: %1$.2f/%2$.2f ГБ (%3$.2f%%)</string>
     <string name="free_memory">Свободное ОЗУ: %1$.2f ГБ (%2$.2f%%)</string>
     <string name="swap_usage">Загрузка файла подкачки: %1$.2f/%2$.2f ГБ (%3$.2f%%)</string>
     <string name="swap_free">Свободно в файле подкачки: %1$.2f ГБ (%2$.2f%%)</string>
+    <!-- Конец -->
+
+    <!-- Диск -->
+    <string name="disk_used_main">Занято: … ГБ</string>
+    <string name="disk_free_main">Свободно: … ГБ</string>
 
     <string name="disk_used">Занято: %1$.2f/%2$.2f ГБ (%3$.2f%%)</string>
     <string name="disk_free">Свободно: %1$.2f ГБ (%2$.2f%%)</string>
+    <!-- Конец -->
+
+    <!-- Батарея -->
+    <string name="battery_is_not_main">Батарея не обнаружена</string>
+    <string name="battery_status_charging_main">Батарея: …</string>
+    <string name="percent_charging_main">Процент зарядки: …%</string>
+    <string name="time_remaining_battery_main">Оставшееся время работы: … мин</string>
+
 
     <string name="battery_is_not">Батарея не обнаружена</string>
     <string name="battery_status_charging">Батарея: заряжается</string>
@@ -20,6 +53,21 @@
     <string name="time_remaining_battery">Оставшееся время работы: %1$.1f мин</string>
     <string name="time_remaining_battery_infinite">Оставшееся время работы: ∞ мин</string>
     <string name="time_remaining_battery_unknown">Оставшееся время работы: не определено</string>
+    <!-- Конец -->
+
+    <!-- ОС -->
+    <string name="uptime_main">Время работы: ... часов</string>
 
     <string name="uptime">Время работы: %1$s</string>
+    <!-- Конец -->
+
+
+    <string name="request_delay">Задержка запросов к серверу</string>
+    <string name="delay_seconds">Задержка в секундах</string>
+    <string name="notify_cpu_on_main">Уведомления процессора ВКЛ</string>
+    <string name="notify_cpu_off_main">Уведомления процессора ВЫКЛ</string>
+    <string name="notify_mem_on_main">Уведомления ОЗУ ВКЛ</string>
+    <string name="notify_mem_off_main">Уведомления ОЗУ ВЫКЛ</string>
+    <string name="notify_disk_on_main">Уведомления диска ВКЛ</string>
+    <string name="notify_disk_off_main">Уведомления диска ВЫКЛ</string>
 </resources>

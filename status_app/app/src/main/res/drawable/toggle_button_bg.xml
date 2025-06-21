@@ -1,0 +1,16 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Состояние: включено -->
+    <item android:state_checked="true">
+        <shape android:shape="rectangle">
+            <solid android:color="?attr/colorButtonBackground" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+    <!-- Состояние: выключено -->
+    <item android:state_checked="false">
+        <shape android:shape="rectangle">
+            <solid android:color="?attr/colorButtonBackground" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+</selector>

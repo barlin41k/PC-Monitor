@@ -1,9 +1,14 @@
 package com.bxrlya.pcmonitor
 
 import android.Manifest
+import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -13,7 +18,10 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,15 +40,18 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okio.IOException
 
 class MainActivity : AppCompatActivity() {
 
     // --- ПЕРЕМЕННЫЕ
+    private lateinit var sharedPrefs: SharedPreferences
     private val client = OkHttpClient()
     private var updateJob: Job? = null
+    private var isAppVisible = true
 
-    // Тестовый айпи
-    private var serverIp = "192.168.1.33"
+    private val defaultServerIp = "192.168.1.33"
+    private val defaultDelayGetReq = 5L
 
     private lateinit var cpuLoadLabel: TextView
 
@@ -74,10 +85,21 @@ class MainActivity : AppCompatActivity() {
     )
     // --- КОНЕЦ
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        sharedPrefs = getSharedPreferences("settings", MODE_PRIVATE)
+
+        var serverIp = sharedPrefs.getString("server_ip", defaultServerIp)
+        var getDelay = sharedPrefs.getLong("delay", defaultDelayGetReq)
+
+        var notificationCpu: Boolean
+        var notificationMem: Boolean
+        var notificationDisk: Boolean
+
+        val toolbar = findViewById<Toolbar>(R.id.main_toolbar)
+        setSupportActionBar(toolbar)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -115,6 +137,7 @@ class MainActivity : AppCompatActivity() {
             val newIp = ipInputEditText.text.toString().trim()
             if (newIp.isNotEmpty()) {
                 serverIp = newIp
+                sharedPrefs.edit { putString("server_ip", serverIp) }
                 Toast.makeText(this, "IP-адрес обновлён: $serverIp", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, "Введите корректный IP", Toast.LENGTH_SHORT).show()
@@ -158,6 +181,11 @@ class MainActivity : AppCompatActivity() {
                     val request = Request.Builder().url(url).build()
                     val response = client.newCall(request).execute()
                     val body = response.body?.string() ?: ""
+
+                    getDelay = sharedPrefs.getLong("delay", defaultDelayGetReq)
+                    notificationCpu = sharedPrefs.getBoolean("cpu_notify", true)
+                    notificationMem = sharedPrefs.getBoolean("mem_notify", true)
+                    notificationDisk = sharedPrefs.getBoolean("disk_notify", true)
 
                     val json = Json.parseToJsonElement(body).jsonObject
 
@@ -236,19 +264,24 @@ class MainActivity : AppCompatActivity() {
                         // --- КОНЕЦ
 
                         // --- ПРОВЕРКА ЗАГРУЖЕННОСТИ
-                        notifiedHighCpu = checkThreshold(cpuLoad, 90.0, notifiedHighCpu) {
-                            sendNotification("Высокая загрузка CPU", "Загрузка CPU достигла ${cpuLoad.toInt()}%!")
+                        if (notificationCpu) {
+                            notifiedHighCpu = checkThreshold(cpuLoad, 90.0, notifiedHighCpu) {
+                                sendNotification("Высокая загрузка CPU", "Загрузка CPU достигла ${cpuLoad.toInt()}%!")
+                            }
                         }
-                        notifiedHighMem = checkThreshold(memPercent1, 90.0, notifiedHighMem) {
-                            sendNotification("Высокое использование ОЗУ", "Используется ${memPercent1.toInt()}% ОЗУ!")
+                        if (notificationMem) {
+                            notifiedHighMem = checkThreshold(memPercent1, 90.0, notifiedHighMem) {
+                                sendNotification("Высокое использование ОЗУ", "Используется ${memPercent1.toInt()}% ОЗУ!")
+                            }
                         }
 
-                        //println(selectedDisk)
                         val diskPercentUsed = selectedDisk?.let { disk ->
                             if (disk.size != 0.0) disk.used / disk.size * 100 else 0.0
                         } ?: 0.0
-                        notifiedHighDisk = checkThreshold(diskPercentUsed, 90.0, notifiedHighDisk) {
-                            sendNotification("Мало места на диске", "Диск ${selectedDisk?.fs ?: "неизвестно"} заполнен на ${diskPercentUsed.toInt()}%")
+                        if (notificationDisk) {
+                            notifiedHighDisk = checkThreshold(diskPercentUsed, 90.0, notifiedHighDisk) {
+                                sendNotification("Мало места на диске", "Диск ${selectedDisk?.fs ?: "неизвестно"} заполнен на ${diskPercentUsed.toInt()}%")
+                            }
                         }
                         // --- КОНЕЦ
 
@@ -274,7 +307,7 @@ class MainActivity : AppCompatActivity() {
 
                         timeRemainingBatteryLabel.text = when {
                             remainingTime != null && percentCharging.toInt() != 100 ->
-                                getString(R.string.time_remaining_battery, remainingTime / 60).coloredSpan(0, 26, this@MainActivity)
+                                getString(R.string.time_remaining_battery, remainingTime/60).coloredSpan(0, 26, this@MainActivity)
                             remainingTime != null && percentCharging.toInt() == 100 ->
                                 getString(R.string.time_remaining_battery_infinite).coloredSpan(0, 24, this@MainActivity)
                             else -> getString(R.string.time_remaining_battery_unknown).coloredSpan(0, 24, this@MainActivity)
@@ -283,17 +316,61 @@ class MainActivity : AppCompatActivity() {
                         osUptimeTimeLabel.text = getString(R.string.uptime, getHourString(osUptimeHours / 3600)).coloredSpan(0, 12, this@MainActivity)
                         // --- КОНЕЦ
                     }
+                } catch (e: IOException) {
+                    if (isAppVisible) {
+                        showErrorDialog(
+                            this@MainActivity,
+                            "Ошибка подключения",
+                            "Ошибка подключения к серверу $serverIp порт 8080. Проверьте подключение к интернету и состояние сервера."
+                        )
+                    }
                 } catch (e: Exception) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@MainActivity, "Ошибка: ${e.message}", Toast.LENGTH_SHORT).show()
+                    if (isAppVisible) {
+                        showErrorDialog(
+                            this@MainActivity,
+                            "Неизвестная ошибка",
+                            e.message ?: "Ошибка без сообщения"
+                        )
                     }
                 }
 
-                delay(5000)
+                delay(getDelay*1000L)
             }
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.settings_menu, menu)
+        return true
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.settings -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.help -> {
+                val issuesURL = "https://github.com/barlin41k/PC-Monitor/issues"
+                val intent = Intent(Intent.ACTION_VIEW, issuesURL.toUri())
+                Toast.makeText(this, "Открыта ссылка", Toast.LENGTH_SHORT).show()
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isAppVisible = true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        isAppVisible = false
+    }
     override fun onDestroy() {
         super.onDestroy()
         updateJob?.cancel()
