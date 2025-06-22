@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <style name="Base.Theme.PCMonitor" parent="Theme.Material3.DayNight">
         <item name="windowActionBar">false</item> <!-- Отключить дефолтный бар -->
         <item name="windowNoTitle">true</item> <!-- Убрать статус сверху -->
@@ -12,9 +12,10 @@
         <item name="colorSpinnerOutline">#1f133d</item> <!-- Обводка спиннера -->
 
         <item name="colorPrimary">#1b1133</item> <!-- Цвет фона тулбара -->
-        <item name="colorOnPrimary">?attr/colorOnBackground</item> <!-- Цвет иконок и текста тулбара -->
+        <item name="colorOnPrimary">#ffffff</item> <!-- Цвет иконок и текста тулбара -->
 
         <item name="colorButtonBackground">?colorSpinnerBackground</item> <!-- Цвет кнопки -->
+        <item name="ViewColor">#dedede</item> <!-- Цвет разделителей -->
     </style>
 
 </resources>

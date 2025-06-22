@@ -29,7 +29,7 @@
             android:padding="16dp">
 
             <TextView
-                android:id="@+id/cpu_name"
+                android:id="@+id/delay_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/request_delay"
@@ -50,57 +50,59 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="@string/delay_seconds"
-                    android:textStyle="italic"
                     android:fontFamily="@font/inter_italic"
-                    android:inputType="number" />
+                    android:hint="@string/delay_seconds"
+                    android:importantForAutofill="no"
+                    android:inputType="number"
+                    android:minHeight="48dp"
+                    android:textStyle="italic"
+                    android:gravity="center"
+                    android:textColor="?attr/colorOnBackground"
+                    android:textColorHint="?attr/colorCategory"
+                    android:background="@drawable/edit_text_bg"
+                    android:layout_marginBottom="12dp" />
 
                 <Button
                     android:id="@+id/apply_delay"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/apply"
-                    android:layout_marginBottom="12dp"/>
+                    tools:ignore="TouchTargetSizeCheck" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/notifications_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/notifications_status"
+                android:textColor="?attr/colorOnBackground"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingBottom="4dp"
+                android:fontFamily="@font/inter_bold"
+                android:gravity="center" />
 
             <ToggleButton
                 android:id="@+id/cpu_notifications"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
                 android:textOn="@string/notify_cpu_on_main"
                 android:textOff="@string/notify_cpu_off_main"
-                android:textColor="?attr/colorOnBackground"
-                android:padding="10dp"
-                android:background="@drawable/toggle_button_bg"
-                android:fontFamily="@font/inter_bold"
-                android:layout_gravity="center" />
-
-            <ToggleButton
-                android:id="@+id/mem_notifications"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:textOn="@string/notify_mem_on_main"
-                android:textOff="@string/notify_mem_off_main"
-                android:textColor="?attr/colorOnBackground"
-                android:padding="10dp"
-                android:background="@drawable/toggle_button_bg"
-                android:fontFamily="@font/inter_bold"
-                android:layout_gravity="center" />
+                style="@style/ToggleButtonStyle"
+                />
 
             <ToggleButton
                 android:id="@+id/disk_notifications"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
                 android:textOn="@string/notify_disk_on_main"
                 android:textOff="@string/notify_disk_off_main"
-                android:textColor="?attr/colorOnBackground"
-                android:padding="10dp"
-                android:background="@drawable/toggle_button_bg"
-                android:fontFamily="@font/inter_bold"
-                android:layout_gravity="center" />
+                android:layout_marginBottom="12dp"
+                style="@style/ToggleButtonStyle" />
+
+            <ToggleButton
+                android:id="@+id/mem_notifications"
+                android:textOn="@string/notify_mem_on_main"
+                android:textOff="@string/notify_mem_off_main"
+                android:layout_marginBottom="12dp"
+                style="@style/ToggleButtonStyle" />
 
         </LinearLayout>
     </ScrollView>

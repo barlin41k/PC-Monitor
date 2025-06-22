@@ -25,7 +25,7 @@ fun String.coloredSpan(start: Int, end: Int, context: Context): Spannable {
     val isDarkTheme = (context.resources.configuration.uiMode and
             Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
-    val color = if (isDarkTheme) "#f7f2f2" else "#050505"
+    val color = "#f7f2f2"
 
     spannable.setSpan(
         ForegroundColorSpan(color.toColorInt()),

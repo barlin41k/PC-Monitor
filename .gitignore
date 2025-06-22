@@ -7,6 +7,7 @@
 *.iml
 
 # node
+node_modules/
 /status_server/node_modules/
 /status_server/.env
 

@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/settings"
         android:icon="@drawable/ic_settings"
-        android:title="Настройки"
+        android:title="@string/settings"
         app:showAsAction="ifRoom"/>
     <item android:id="@+id/help"
         android:icon="@drawable/ic_help"
-        android:title="Помощь"
+        android:title="@string/help"
         app:showAsAction="ifRoom"/>
 </menu>

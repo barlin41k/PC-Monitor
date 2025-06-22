@@ -1,8 +1,8 @@
 <resources>
+    <!-- АКТИВИТИ ГЛАВНОЕ -->
     <string name="app_name" translatable="false">PC Monitor</string>
 
     <string name="ip_input">Введите IP-адрес хоста</string>
-
     <string name="apply">Применить</string>
 
     <string name="cpu">Процессор</string>
@@ -62,12 +62,23 @@
     <!-- Конец -->
 
 
+
+    <!-- АКТИВИТИ НАСТРОЕК -->
+    <string name="settings">Настройки</string>
+    <string name="help">Помощь</string>
+
+    <!-- Задержка -->
     <string name="request_delay">Задержка запросов к серверу</string>
     <string name="delay_seconds">Задержка в секундах</string>
+    <!-- Конец -->
+
+    <!-- Уведомления -->
+    <string name="notifications_status">Уведомления при пороге</string>
     <string name="notify_cpu_on_main">Уведомления процессора ВКЛ</string>
     <string name="notify_cpu_off_main">Уведомления процессора ВЫКЛ</string>
     <string name="notify_mem_on_main">Уведомления ОЗУ ВКЛ</string>
     <string name="notify_mem_off_main">Уведомления ОЗУ ВЫКЛ</string>
     <string name="notify_disk_on_main">Уведомления диска ВКЛ</string>
     <string name="notify_disk_off_main">Уведомления диска ВЫКЛ</string>
+    <!-- Конец -->
 </resources>

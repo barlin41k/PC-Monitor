@@ -53,7 +53,7 @@ async function init() {
     }
     if (frequency && config.logs.do_get_log) {
         setInterval(() => {
-            makeLog(`За ${frequency}с было ${getCount} GET-запросов`)
+            makeLog(`За ${frequency}с было выполнено ${getCount} GET-запросов`)
             getCount = 0;
         }, frequency*1000)
     }
@@ -85,14 +85,14 @@ async function loadTOML() {
     try {
         const data = await fs.readFile(infoPath, 'utf-8');
         const parsed = toml.parse(data);
-        console.log(`--- Для конфигурации см. info.toml ---`)
+        console.log(`--- Для конфигураций логов см. status_server/info.toml ---`)
         if (parsed.logs && typeof parsed.logs.get_frequency === 'number') {
-            makeLog(`Получены данные из info.toml`)
+            makeLog(`Успешно получены данные из info.toml`)
             return parsed;
         } else {
             makeLog(`Файл info.toml повреждён`)
             await fs.writeFile(infoPath, defaultTOML);
-            makeLog(`Файл info.toml пересоздан`)
+            makeLog(`Файл info.toml пересоздан с настройками по умолчанию`)
             return toml.parse(defaultTOML);
         }
     } catch (err) {

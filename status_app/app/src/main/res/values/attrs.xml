@@ -4,4 +4,5 @@
     <attr name="colorSpinnerOutline" format="color" />
     <attr name="colorCategory" format="color" />
     <attr name="colorButtonBackground" format="color" />
+    <attr name="ViewColor" format="color" />
 </resources>
