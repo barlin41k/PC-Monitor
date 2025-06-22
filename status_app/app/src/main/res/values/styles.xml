@@ -16,4 +16,9 @@
         <item name="android:padding">10dp</item>
         <item name="android:background">@drawable/toggle_button_bg</item>
     </style>
+    <style name="ToolbarStyle">
+        <item name="android:fontFamily">@font/inter_bold</item>
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="titleTextColor">?attr/colorOnPrimary</item>
+    </style>
 </resources>

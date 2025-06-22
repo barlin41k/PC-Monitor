@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
@@ -288,13 +287,9 @@ class MainActivity : AppCompatActivity() {
 
                         // --- ОБНОВЛЕНИЕ ДАННЫХ
                         cpuLoadLabel.text = getString(R.string.cpu_load, cpuLoad).coloredSpan(0, 20, this@MainActivity)
-
                         totalMemLabel.text = getString(R.string.memory_usage, usedMemory, totalMemory, memPercent1).coloredSpan(0, 13, this@MainActivity)
-
                         freeMemLabel.text = getString(R.string.free_memory, freeMemory, memPercent2).coloredSpan(0, 13, this@MainActivity)
-
                         totalSwapLabel.text = getString(R.string.swap_usage, usedSwap, totalSwap, swapPercent1).coloredSpan(0, 24, this@MainActivity)
-
                         freeSwapLabel.text = getString(R.string.swap_free, freeSwap, swapPercent2).coloredSpan(0, 26, this@MainActivity)
 
                         isChargingLabel.text = when {
@@ -303,9 +298,7 @@ class MainActivity : AppCompatActivity() {
                             percentCharging.toInt() == 100 -> getString(R.string.battery_status_full).coloredSpan(0, 8, this@MainActivity)
                             else -> getString(R.string.battery_status_unknown).coloredSpan(0, 8, this@MainActivity)
                         }
-
                         percentChargingLabel.text = getString(R.string.percent_charging, percentCharging).coloredSpan(0, 16, this@MainActivity)
-
                         timeRemainingBatteryLabel.text = when {
                             remainingTime != null && percentCharging.toInt() != 100 ->
                                 getString(R.string.time_remaining_battery, remainingTime/60).coloredSpan(0, 26, this@MainActivity)
@@ -314,10 +307,11 @@ class MainActivity : AppCompatActivity() {
                             else -> getString(R.string.time_remaining_battery_unknown).coloredSpan(0, 24, this@MainActivity)
                         }
 
-                        osUptimeTimeLabel.text = getString(R.string.uptime, getHourString(osUptimeHours / 3600)).coloredSpan(0, 12, this@MainActivity)
+                        val uptimeHours = osUptimeHours / 3600
+                        osUptimeTimeLabel.text = getString(R.string.uptime, getTimeString(uptimeHours.toLong(), 1)).coloredSpan(0, 12, this@MainActivity)
                         // --- КОНЕЦ
                     }
-                } catch (e: IOException) {
+                } catch (e: IOException) { // Нет подключения к серверу / интернету
                     if (isAppVisible) {
                         showErrorDialog(
                             this@MainActivity,
@@ -340,6 +334,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // --- МЕНЮ
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.settings_menu, menu)
@@ -362,12 +357,12 @@ class MainActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+    // --- КОНЕЦ
 
     override fun onResume() {
         super.onResume()
         isAppVisible = true
     }
-
     override fun onPause() {
         super.onPause()
         isAppVisible = false

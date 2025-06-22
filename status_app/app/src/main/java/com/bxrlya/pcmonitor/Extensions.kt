@@ -21,10 +21,6 @@ import kotlinx.coroutines.withContext
 // --- ОКРАСКА ЧАСТИ ТЕКСТА В ВЫДЕЛЯЮЩИЙ ЦВЕТ
 fun String.coloredSpan(start: Int, end: Int, context: Context): Spannable {
     val spannable = SpannableString(this)
-
-    val isDarkTheme = (context.resources.configuration.uiMode and
-            Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-
     val color = "#f7f2f2"
 
     spannable.setSpan(
@@ -37,15 +33,23 @@ fun String.coloredSpan(start: Int, end: Int, context: Context): Spannable {
 }
 
 // --- ПРАВИЛЬНОЕ СКЛОНЕНИЕ СЛОВА
-fun getHourString(number: Int): String {
+// 1 - час, 2 - секунда, 3 - минута
+fun getTimeString(number: Long, key: Int): String {
     val lastTwoDigits = number % 100
     val lastDigit = number % 10
 
+    val forms = when (key) {
+        1 -> listOf("час", "часа", "часов")
+        2 -> listOf("секунда", "секунды", "секунд")
+        3 -> listOf("минута", "минуты", "минут")
+        else -> listOf("единица", "единицы", "единиц")
+    }
+
     val word = when {
-        lastTwoDigits in 11..14 -> "часов"
-        lastDigit == 1 -> "час"
-        lastDigit in 2..4 -> "часа"
-        else -> "часов"
+        lastTwoDigits in 11..14 -> forms[2]
+        lastDigit == 1L -> forms[0]
+        lastDigit in 2..4 -> forms[1]
+        else -> forms[2]
     }
 
     return "$number $word"
@@ -99,6 +103,7 @@ fun checkThreshold(
 
 // --- АЛЕРТ НА ОШИБКИ
 var alertDialogErrorIsShowing: AlertDialog? = null
+
 suspend fun showErrorDialog(
     context: Context,
     title: String,
@@ -121,4 +126,26 @@ suspend fun showErrorDialog(
             }
             .show()
     }
+}
+
+fun nonSuspendShowErrorDialog(
+    context: Context,
+    title: String,
+    message: String
+) {
+    if (alertDialogErrorIsShowing?.isShowing == true) {
+        return
+    }
+
+    alertDialogErrorIsShowing = AlertDialog.Builder(context)
+        .setTitle(title)
+        .setMessage(message)
+        .setPositiveButton("ОК") { dialog, _ ->
+            dialog.dismiss()
+            alertDialogErrorIsShowing = null
+        }
+        .setOnDismissListener {
+            alertDialogErrorIsShowing = null
+        }
+        .show()
 }

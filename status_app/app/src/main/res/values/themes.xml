@@ -15,7 +15,7 @@
         <item name="colorOnPrimary">#ffffff</item> <!-- Цвет иконок и текста тулбара -->
 
         <item name="colorButtonBackground">?colorSpinnerBackground</item> <!-- Цвет кнопки -->
-        <item name="ViewColor">#dedede</item> <!-- Цвет разделителей -->
+        <!-- <item name="ViewColor">#dedede</item>  Цвет разделителей -->
     </style>
 
     <style name="Theme.PCMonitor" parent="Base.Theme.PCMonitor" />

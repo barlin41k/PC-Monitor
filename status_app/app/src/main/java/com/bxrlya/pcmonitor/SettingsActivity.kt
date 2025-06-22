@@ -14,10 +14,13 @@ import androidx.core.content.edit
 class SettingsActivity : AppCompatActivity() {
     // --- ПЕРЕМЕННЫЕ
     private lateinit var applyDelayButton: Button
+    private lateinit var sharedPrefsButton: Button
     private lateinit var editTextDelay: EditText
     private lateinit var cpuNotifications: ToggleButton
     private lateinit var memNotifications: ToggleButton
     private lateinit var diskNotifications: ToggleButton
+    private val defaultServerIp = "192.168.1.33"
+    private val defaultDelayGetReq = 5L
     // --- КОНЕЦ
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,9 +31,32 @@ class SettingsActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         val sharedPrefs = getSharedPreferences("settings", MODE_PRIVATE)
+        var serverIp: String?
+        var delay: Long
+
+        //var notificationCpu: Boolean
+        //var notificationMem: Boolean
+        //var notificationDisk: Boolean
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
+
+        sharedPrefsButton = findViewById(R.id.sharedprefs_button)
+        sharedPrefsButton.setOnClickListener {
+            delay = sharedPrefs.getLong("delay", defaultDelayGetReq)
+            serverIp = sharedPrefs.getString("server_ip", defaultServerIp)
+            //notificationCpu = sharedPrefs.getBoolean("cpu_notify", true)
+            //notificationMem = sharedPrefs.getBoolean("mem_notify", true)
+            //notificationDisk = sharedPrefs.getBoolean("disk_notify", true)
+            nonSuspendShowErrorDialog(
+                this,
+                "SharedPreferences данные",
+                """
+                    Задержка запросов: $delay секунд
+                    IP-адрес сервера: $serverIp
+                """.trimIndent()
+            )
+        }
 
         // --- ЗАДЕРЖКА
         applyDelayButton = findViewById(R.id.apply_delay)
@@ -39,11 +65,11 @@ class SettingsActivity : AppCompatActivity() {
         applyDelayButton.setOnClickListener {
             val newDelay = editTextDelay.text.toString().trim()
             val tryLong: Long? = newDelay.toLongOrNull()
-            if (newDelay.isNotEmpty() && tryLong != null && tryLong > 1) {
+            if (newDelay.isNotEmpty() && tryLong != null && tryLong >= 1) {
                 sharedPrefs.edit { putLong("delay", tryLong) }
-                Toast.makeText(this, "Задержка обновлена: $tryLong секунд", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Задержка обновлена: ${getTimeString(tryLong, 2)}", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Введите задержку в секундах (больше 1)", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Введите задержку в секундах (не меньше 1)", Toast.LENGTH_SHORT).show()
             }
         }
         // --- КОНЕЦ
@@ -64,21 +90,21 @@ class SettingsActivity : AppCompatActivity() {
             sharedPrefs.edit {
                 putBoolean("cpu_notify", isChecked)
             }
-            val message = if (isChecked) "Уведомления процессора ВКЛ" else "Уведомления процессора ВЫКЛ"
+            val message = if (isChecked) getString(R.string.notify_cpu_on_main) else getString(R.string.notify_cpu_off_main)
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
         memNotifications.setOnCheckedChangeListener { _, isChecked ->
             sharedPrefs.edit {
                 putBoolean("mem_notify", isChecked)
             }
-            val message = if (isChecked) "Уведомления ОЗУ ВКЛ" else "Уведомления ОЗУ ВЫКЛ"
+            val message = if (isChecked) getString(R.string.notify_mem_on_main) else getString(R.string.notify_mem_off_main)
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
         diskNotifications.setOnCheckedChangeListener { _, isChecked ->
             sharedPrefs.edit {
                 putBoolean("disk_notify", isChecked)
             }
-            val message = if (isChecked) "Уведомления диска ВКЛ" else "Уведомления диска ВЫКЛ"
+            val message = if (isChecked) getString(R.string.notify_disk_on_main) else getString(R.string.notify_disk_off_main)
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
     }

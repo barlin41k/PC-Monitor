@@ -81,4 +81,9 @@
     <string name="notify_disk_on_main">Уведомления диска ВКЛ</string>
     <string name="notify_disk_off_main">Уведомления диска ВЫКЛ</string>
     <!-- Конец -->
+
+    <!-- SharedPreferences -->
+    <string name="sharedprefs_label">Сохранённые значения</string>
+    <string name="sharedprefs_button">Проверить</string>
+    <!-- Конец -->
 </resources>
