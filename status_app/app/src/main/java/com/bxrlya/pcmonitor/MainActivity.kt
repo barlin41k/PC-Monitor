@@ -94,6 +94,41 @@ class MainActivity : AppCompatActivity() {
         var serverIp = sharedPrefs.getString("server_ip", defaultServerIp)
         var getDelay = sharedPrefs.getLong("delay", defaultDelayGetReq)
 
+        // --- ЧЕК ОБНОВЛЕНИЯ
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val (updateAvailable, newVersion) = checkForUpdate(this@MainActivity)
+
+                if (updateAvailable) {
+                    withContext(Dispatchers.Main) {
+                        nonSuspendShowErrorDialog(
+                            this@MainActivity,
+                            "Новое обновление $newVersion",
+                            "Доступна новая версия. Пожалуйста, обновите приложение.",
+                            true
+                        )
+                    }
+                }
+            } catch (e: IOException) {
+                if (isAppVisible) {
+                    showErrorDialog(
+                        this@MainActivity,
+                        "Ошибка подключения",
+                        "Ошибка подключения к серверу $serverIp порт 8080. Проверьте подключение к интернету и состояние сервера."
+                    )
+                }
+            } catch (e: Exception) {
+                if (isAppVisible) {
+                    showErrorDialog(
+                        this@MainActivity,
+                        "Неизвестная ошибка",
+                        e.message ?: "Ошибка без сообщения"
+                    )
+                }
+            }
+        }
+        // --- КОНЕЦ
+
         var notificationCpu: Boolean
         var notificationMem: Boolean
         var notificationDisk: Boolean
@@ -165,8 +200,8 @@ class MainActivity : AppCompatActivity() {
                 val percentUsed = if (disk.size != 0.0) disk.used / disk.size * 100 else 0.0
                 val percentFree = if (disk.size != 0.0) disk.free / disk.size * 100 else 0.0
 
-                totalDiskLabel.text = getString(R.string.disk_used, disk.used, disk.size, percentUsed).coloredSpan(0, 7, this@MainActivity)
-                freeDiskLabel.text = getString(R.string.disk_free, disk.free, percentFree).coloredSpan(0, 9, this@MainActivity)
+                totalDiskLabel.text = getString(R.string.disk_used, disk.used, disk.size, percentUsed).coloredSpan(0, 7)
+                freeDiskLabel.text = getString(R.string.disk_free, disk.free, percentFree).coloredSpan(0, 9)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -251,8 +286,8 @@ class MainActivity : AppCompatActivity() {
                             val percentUsed = if (selectedDisk.size != 0.0) selectedDisk.used / selectedDisk.size * 100 else 0.0
                             val percentFree = if (selectedDisk.size != 0.0) selectedDisk.free / selectedDisk.size * 100 else 0.0
 
-                            totalDiskLabel.text = getString(R.string.disk_used, selectedDisk.used, selectedDisk.size, percentUsed).coloredSpan(0, 7, this@MainActivity)
-                            freeDiskLabel.text = getString(R.string.disk_free, selectedDisk.free, percentFree).coloredSpan(0, 9, this@MainActivity)
+                            totalDiskLabel.text = getString(R.string.disk_used, selectedDisk.used, selectedDisk.size, percentUsed).coloredSpan(0, 7)
+                            freeDiskLabel.text = getString(R.string.disk_free, selectedDisk.free, percentFree).coloredSpan(0, 9)
                         }
                         // --- КОНЕЦ
 
@@ -286,29 +321,29 @@ class MainActivity : AppCompatActivity() {
                         // --- КОНЕЦ
 
                         // --- ОБНОВЛЕНИЕ ДАННЫХ
-                        cpuLoadLabel.text = getString(R.string.cpu_load, cpuLoad).coloredSpan(0, 20, this@MainActivity)
-                        totalMemLabel.text = getString(R.string.memory_usage, usedMemory, totalMemory, memPercent1).coloredSpan(0, 13, this@MainActivity)
-                        freeMemLabel.text = getString(R.string.free_memory, freeMemory, memPercent2).coloredSpan(0, 13, this@MainActivity)
-                        totalSwapLabel.text = getString(R.string.swap_usage, usedSwap, totalSwap, swapPercent1).coloredSpan(0, 24, this@MainActivity)
-                        freeSwapLabel.text = getString(R.string.swap_free, freeSwap, swapPercent2).coloredSpan(0, 26, this@MainActivity)
+                        cpuLoadLabel.text = getString(R.string.cpu_load, cpuLoad).coloredSpan(0, 20)
+                        totalMemLabel.text = getString(R.string.memory_usage, usedMemory, totalMemory, memPercent1).coloredSpan(0, 13)
+                        freeMemLabel.text = getString(R.string.free_memory, freeMemory, memPercent2).coloredSpan(0, 13)
+                        totalSwapLabel.text = getString(R.string.swap_usage, usedSwap, totalSwap, swapPercent1).coloredSpan(0, 24)
+                        freeSwapLabel.text = getString(R.string.swap_free, freeSwap, swapPercent2).coloredSpan(0, 26)
 
                         isChargingLabel.text = when {
-                            isCharging -> getString(R.string.battery_status_charging).coloredSpan(0, 8, this@MainActivity)
-                            !isCharging && percentCharging.toInt() != 100 -> getString(R.string.battery_status_not_charging).coloredSpan(0, 8, this@MainActivity)
-                            percentCharging.toInt() == 100 -> getString(R.string.battery_status_full).coloredSpan(0, 8, this@MainActivity)
-                            else -> getString(R.string.battery_status_unknown).coloredSpan(0, 8, this@MainActivity)
+                            isCharging -> getString(R.string.battery_status_charging).coloredSpan(0, 8)
+                            !isCharging && percentCharging.toInt() != 100 -> getString(R.string.battery_status_not_charging).coloredSpan(0, 8)
+                            percentCharging.toInt() == 100 -> getString(R.string.battery_status_full).coloredSpan(0, 8)
+                            else -> getString(R.string.battery_status_unknown).coloredSpan(0, 8)
                         }
-                        percentChargingLabel.text = getString(R.string.percent_charging, percentCharging).coloredSpan(0, 16, this@MainActivity)
+                        percentChargingLabel.text = getString(R.string.percent_charging, percentCharging).coloredSpan(0, 16)
                         timeRemainingBatteryLabel.text = when {
                             remainingTime != null && percentCharging.toInt() != 100 ->
-                                getString(R.string.time_remaining_battery, remainingTime/60).coloredSpan(0, 26, this@MainActivity)
+                                getString(R.string.time_remaining_battery, remainingTime/60).coloredSpan(0, 26)
                             remainingTime != null && percentCharging.toInt() == 100 ->
-                                getString(R.string.time_remaining_battery_infinite).coloredSpan(0, 24, this@MainActivity)
-                            else -> getString(R.string.time_remaining_battery_unknown).coloredSpan(0, 24, this@MainActivity)
+                                getString(R.string.time_remaining_battery_infinite).coloredSpan(0, 24)
+                            else -> getString(R.string.time_remaining_battery_unknown).coloredSpan(0, 24)
                         }
 
                         val uptimeHours = osUptimeHours / 3600
-                        osUptimeTimeLabel.text = getString(R.string.uptime, getTimeString(uptimeHours.toLong(), 1)).coloredSpan(0, 12, this@MainActivity)
+                        osUptimeTimeLabel.text = getString(R.string.uptime, getTimeString(uptimeHours.toLong(), 1)).coloredSpan(0, 12)
                         // --- КОНЕЦ
                     }
                 } catch (e: IOException) { // Нет подключения к серверу / интернету

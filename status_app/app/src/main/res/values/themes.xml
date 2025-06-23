@@ -4,19 +4,53 @@
         <item name="windowNoTitle">true</item> <!-- Убрать статус сверху -->
         <item name="android:windowFullscreen">true</item> <!-- Фулл экран -->
 
-        <item name="backgroundColor">#582EFF</item> <!-- Фон -->
+        <item name="alertDialogTheme">@style/YDialog</item> <!-- AlertDialog -->
+
+        <item name="backgroundColor">#160e29</item> <!-- Фон -->
         <item name="colorOnBackground">#ffffff</item> <!-- Категория + спиннер текст -->
 
-        <item name="colorCategory">#DBDBDB</item> <!-- Элементы категории -->
-        <item name="colorSpinnerBackground">#7857FF</item> <!-- Фон спиннера -->
-        <item name="colorSpinnerOutline">#7857FF</item> <!-- Обводка спиннера -->
+        <item name="colorCategory">#c4c1c9</item> <!-- Элементы категории -->
+        <item name="colorSpinnerBackground">#1f133d</item> <!-- Фон спиннера -->
+        <item name="colorSpinnerOutline">#1f133d</item> <!-- Обводка спиннера -->
 
-        <item name="colorPrimary">#6C47FF</item> <!-- Цвет фона тулбара -->
+        <item name="colorPrimary">#1b1133</item> <!-- Цвет фона тулбара -->
         <item name="colorOnPrimary">#ffffff</item> <!-- Цвет иконок и текста тулбара -->
 
         <item name="colorButtonBackground">?colorSpinnerBackground</item> <!-- Цвет кнопки -->
-        <!-- <item name="ViewColor">#dedede</item>  Цвет разделителей -->
     </style>
+
+
+    <!-- Стиль диалога -->
+    <style name="YDialog" parent="Theme.Material3.DayNight.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/bg_dialog</item>
+        <item name="android:textColorPrimary">?attr/colorOnBackground</item>
+        <item name="android:lineSpacingExtra">4dp</item>
+        <item name="android:textSize">18sp</item>
+        <item name="fontFamily">@font/inter</item>
+        <item name="android:windowTitleStyle">@style/YDialogTitleTextAppearance</item>
+
+        <!-- Кнопки -->
+        <item name="buttonBarPositiveButtonStyle">@style/YDialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/YDialogButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/YDialogButton</item>
+
+    </style>
+
+    <!-- Общий стиль кнопок диалога -->
+    <style name="YDialogButton" parent="Widget.Material3.Button.TextButton">
+        <item name="android:backgroundTint">?attr/colorButtonBackground</item>
+        <item name="android:textColor">?attr/colorOnBackground</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:minWidth">64dp</item> <!-- Минимальная ширина кнопки -->
+        <item name="android:minHeight">36dp</item> <!-- Минимальная высота кнопки -->
+    </style>
+
+    <!-- Заглавие -->
+    <style name="YDialogTitleTextAppearance" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="fontFamily">@font/inter_bold</item>
+    </style>
+
 
     <style name="Theme.PCMonitor" parent="Base.Theme.PCMonitor" />
 

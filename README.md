@@ -22,7 +22,7 @@
 <table>
   <tr>
     <td width="50%">
-      <img src="https://raw.githubusercontent.com/barlin41k/PC-Monitor/main/gifs/animation_2.0.1.gif" width="100%" alt="Превью">
+      <img src="https://raw.githubusercontent.com/barlin41k/PC-Monitor/main/gifs/animation_2.0.2.gif" width="100%" alt="Превью">
     </td>
     <td width="50%" valign="top">
       <h3>🧠 Возможности:</h3>
@@ -44,7 +44,7 @@
   </tr>
 </table>
 
-**➕ Превью версии 2.0.1**
+**➕ Превью версии 2.0.2**
 
 ### ❓ Ответы на возможные вопросы
 - **PC Monitor использует ограниченный набор данных мониторинга, так как библиотека на сервере не всегда способна получить очень подробную информацию о состоянии системы.**
@@ -93,9 +93,11 @@
 - Наше ПО выполняется только в локальной сети, использует только локальный IP-адрес, который в любом случае не раскрывается и не хранится где-либо
 
 ## ⌨️ Используемое в проекте
-#### 👅 Языки
+#### 🔧 Языки
 - [Node.js](https://nodejs.org/en)
   - модуль [systeminformation](https://www.npmjs.com/package/systeminformation)
   - модуль [toml](https://www.npmjs.com/package/@iarna/toml)
-- [Android Studio](https://developer.android.com/studio?hl=en)
 - [Kotlin](https://kotlinlang.org/)
+#### ⌨️ IDE
+- [Android Studio](https://developer.android.com/studio?hl=en)
+- [VSCode](https://code.visualstudio.com/)

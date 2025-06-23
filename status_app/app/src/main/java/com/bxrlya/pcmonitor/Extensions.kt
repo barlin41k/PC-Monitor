@@ -3,23 +3,27 @@ package com.bxrlya.pcmonitor
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.res.Configuration
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
-import androidx.core.graphics.toColorInt
-import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColorInt
+import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
 
 // --- ОКРАСКА ЧАСТИ ТЕКСТА В ВЫДЕЛЯЮЩИЙ ЦВЕТ
-fun String.coloredSpan(start: Int, end: Int, context: Context): Spannable {
+fun String.coloredSpan(start: Int, end: Int): Spannable {
     val spannable = SpannableString(this)
     val color = "#f7f2f2"
 
@@ -131,21 +135,60 @@ suspend fun showErrorDialog(
 fun nonSuspendShowErrorDialog(
     context: Context,
     title: String,
-    message: String
+    message: String,
+    isUpdateChecker: Boolean = false
 ) {
     if (alertDialogErrorIsShowing?.isShowing == true) {
         return
     }
+    if (!isUpdateChecker) {
+        alertDialogErrorIsShowing = AlertDialog.Builder(context)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("ОК") { dialog, _ ->
+                dialog.dismiss()
+                alertDialogErrorIsShowing = null
+            }
+            .setOnDismissListener {
+                alertDialogErrorIsShowing = null
+            }
+            .show()
+    } else {
+        alertDialogErrorIsShowing = AlertDialog.Builder(context)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("ОК") { dialog, _ ->
+                dialog.dismiss()
+                alertDialogErrorIsShowing = null
+                val intent = Intent(Intent.ACTION_VIEW,
+                    "https://github.com/barlin41k/PC-Monitor/releases".toUri())
+                context.startActivity(intent)
+            }
+            .setNegativeButton("Потом") { dialog, _ ->
+                dialog.dismiss()
+                alertDialogErrorIsShowing = null
+            }
+            .show()
+    }
+}
 
-    alertDialogErrorIsShowing = AlertDialog.Builder(context)
-        .setTitle(title)
-        .setMessage(message)
-        .setPositiveButton("ОК") { dialog, _ ->
-            dialog.dismiss()
-            alertDialogErrorIsShowing = null
-        }
-        .setOnDismissListener {
-            alertDialogErrorIsShowing = null
-        }
-        .show()
+// --- ПРОВЕРКА ВЕРСИИ
+fun checkForUpdate(context: Context): Pair<Boolean, String> {
+    val client = OkHttpClient()
+    val request = Request.Builder()
+        .url("https://api.github.com/repos/barlin41k/PC-Monitor/releases/latest")
+        .build()
+
+    val response = client.newCall(request).execute()
+    val body = response.body?.string() ?: return Pair(false, "0.0.0")
+
+    val latestVersion = JSONObject(body).getString("tag_name")
+
+    val currentVersion = context.packageManager
+        .getPackageInfo(context.packageName, 0).versionName!! // принудительно (!!)
+
+    return Pair(isNewerVersion(latestVersion, currentVersion), latestVersion)
+}
+fun isNewerVersion(latest: String, current: String): Boolean {
+    return latest != current
 }
