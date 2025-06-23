@@ -23,7 +23,7 @@
     <!-- Стиль диалога -->
     <style name="YDialog" parent="Theme.Material3.DayNight.Dialog.Alert">
         <item name="android:windowBackground">@drawable/bg_dialog</item>
-        <item name="android:textColorPrimary">?attr/colorOnBackground</item>
+        <item name="android:textColorPrimary">#ffffff</item>
         <item name="android:lineSpacingExtra">4dp</item>
         <item name="android:textSize">18sp</item>
         <item name="fontFamily">@font/inter</item>
@@ -39,7 +39,7 @@
     <!-- Общий стиль кнопок диалога -->
     <style name="YDialogButton" parent="Widget.Material3.Button.TextButton">
         <item name="android:backgroundTint">?attr/colorButtonBackground</item>
-        <item name="android:textColor">?attr/colorOnBackground</item>
+        <item name="android:textColor">#ffffff</item>
         <item name="android:textSize">16sp</item>
         <item name="android:layout_marginEnd">8dp</item>
         <item name="android:minWidth">64dp</item> <!-- Минимальная ширина кнопки -->
