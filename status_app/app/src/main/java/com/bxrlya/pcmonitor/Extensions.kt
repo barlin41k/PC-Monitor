@@ -16,23 +16,30 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import java.io.IOException
 
 // --- ОКРАСКА ЧАСТИ ТЕКСТА В ВЫДЕЛЯЮЩИЙ ЦВЕТ
-fun String.coloredSpan(start: Int, end: Int): Spannable {
+fun String.coloredSpan(delimiter: Char = ':'): Spannable {
     val spannable = SpannableString(this)
-    val color = "#f7f2f2"
+    val prefixEnd = indexOf(delimiter) + 1
 
-    spannable.setSpan(
-        ForegroundColorSpan(color.toColorInt()),
-        start,
-        end,
-        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-    )
+    if (prefixEnd > 0) {
+        val color = "#f7f2f2"
+        spannable.setSpan(
+            ForegroundColorSpan(color.toColorInt()),
+            0,
+            prefixEnd,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+    }
+
     return spannable
 }
 
@@ -180,7 +187,7 @@ fun checkForUpdate(context: Context): Pair<Boolean, String> {
         .build()
 
     val response = client.newCall(request).execute()
-    val body = response.body?.string() ?: return Pair(false, "0.0.0")
+    val body = response.body?.string() ?: return Pair(false, "?.?.?")
 
     val latestVersion = JSONObject(body).getString("tag_name")
 
@@ -192,3 +199,41 @@ fun checkForUpdate(context: Context): Pair<Boolean, String> {
 fun isNewerVersion(latest: String, current: String): Boolean {
     return latest != current
 }
+
+fun checkUpdate(context: Context, serverIp: String, isAppVisible: Boolean) {
+    CoroutineScope(Dispatchers.IO).launch {
+        try {
+            val (updateAvailable, newVersion) = checkForUpdate(context)
+
+            if (updateAvailable) {
+                withContext(Dispatchers.Main) {
+                    nonSuspendShowErrorDialog(
+                        context,
+                        context.getString(R.string.update_available, newVersion),
+                        context.getString(R.string.update_available_text),
+                        true
+                    )
+                }
+            }
+        } catch (_: IOException) {
+            if (isAppVisible) {
+                showErrorDialog(
+                    context,
+                    context.getString(R.string.no_internet_connection),
+                    context.getString(R.string.no_internet_connection_text, serverIp)
+                )
+            }
+        } catch (e: Exception) {
+            if (isAppVisible) {
+                showErrorDialog(
+                    context,
+                    context.getString(R.string.unknown_error),
+                    e.message ?: context.getString(R.string.unknown_error_text)
+                )
+            }
+        }
+    }
+}
+
+// --- ПРОЦЕНТЫ
+fun Double.percentOf(total: Double): Double = if (total != 0.0) this / total * 100 else 0.0

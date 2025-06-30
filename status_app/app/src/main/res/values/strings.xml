@@ -1,32 +1,36 @@
+<!-- Переводы -->
+<!-- Все текста с main используется для изначального показа -->
+<!-- Все текста без него используются рантайм -->
+
 <resources>
     <!-- АКТИВИТИ ГЛАВНОЕ -->
     <string name="app_name" translatable="false">PC Monitor</string>
 
-    <string name="ip_input">Введите IP-адрес хоста</string>
+    <string name="ip_input">Введите IP хоста</string>
     <string name="apply">Применить</string>
 
     <string name="cpu">Процессор</string>
     <string name="ram">Оперативная память</string>
     <string name="disk">Диск</string>
     <string name="battery">Батарея</string>
-    <string name="os">Операционная система</string>
+    <string name="os">ОС</string>
 
     <!-- Процессор -->
-    <string name="cpu_load_main">Загрузка процессора: …%</string>
+    <string name="cpu_load_main">Загрузка CPU: …%</string>
 
-    <string name="cpu_load">Загрузка процессора: %1$.2f%%</string>
+    <string name="cpu_load">Загрузка CPU: %1$.2f%%</string>
     <!-- Конец -->
 
     <!-- ОЗУ -->
     <string name="memory_usage_main">Загрузка ОЗУ: … ГБ</string>
     <string name="free_memory_main">Свободное ОЗУ: … ГБ</string>
-    <string name="swap_usage_main">Загрузка файла подкачки: … ГБ</string>
-    <string name="swap_free_main">Свободно в файле подкачки: … ГБ</string>
+    <string name="swap_usage_main">Используется подкачка: … ГБ</string>
+    <string name="swap_free_main">Свободно подкачки: … ГБ</string>
 
     <string name="memory_usage">Загрузка ОЗУ: %1$.2f/%2$.2f ГБ (%3$.2f%%)</string>
     <string name="free_memory">Свободное ОЗУ: %1$.2f ГБ (%2$.2f%%)</string>
-    <string name="swap_usage">Загрузка файла подкачки: %1$.2f/%2$.2f ГБ (%3$.2f%%)</string>
-    <string name="swap_free">Свободно в файле подкачки: %1$.2f ГБ (%2$.2f%%)</string>
+    <string name="swap_usage">Используется подкачка: %1$.2f/%2$.2f ГБ (%3$.2f%%)</string>
+    <string name="swap_free">Свободно подкачки: %1$.2f ГБ (%2$.2f%%)</string>
     <!-- Конец -->
 
     <!-- Диск -->
@@ -38,25 +42,25 @@
     <!-- Конец -->
 
     <!-- Батарея -->
-    <string name="battery_is_not_main">Батарея не обнаружена</string>
+    <string name="battery_is_not_main">Батарея не найдена</string>
     <string name="battery_status_charging_main">Батарея: …</string>
-    <string name="percent_charging_main">Процент зарядки: …%</string>
-    <string name="time_remaining_battery_main">Оставшееся время работы: … мин</string>
+    <string name="percent_charging_main">Заряд: …%</string>
+    <string name="time_remaining_battery_main">Остаток: … мин</string>
 
 
     <string name="battery_is_not">Батарея не обнаружена</string>
     <string name="battery_status_charging">Батарея: заряжается</string>
     <string name="battery_status_not_charging">Батарея: не заряжается</string>
     <string name="battery_status_full">Батарея: заряжена полностью</string>
-    <string name="battery_status_unknown">Батарея: не известно</string>
-    <string name="percent_charging">Процент зарядки: %1$.0f%%</string>
-    <string name="time_remaining_battery">Оставшееся время работы: %1$.1f мин</string>
-    <string name="time_remaining_battery_infinite">Оставшееся время работы: ∞ мин</string>
-    <string name="time_remaining_battery_unknown">Оставшееся время работы: не определено</string>
+    <string name="battery_status_unknown">Батарея: статус неизвестен</string>
+    <string name="percent_charging">Заряд: %1$.0f%%</string>
+    <string name="time_remaining_battery">Остаток: %1$.1f мин</string>
+    <string name="time_remaining_battery_infinite">Остаток: ∞ мин</string>
+    <string name="time_remaining_battery_unknown">Остаток: не определён</string>
     <!-- Конец -->
 
     <!-- ОС -->
-    <string name="uptime_main">Время работы: ... часов</string>
+    <string name="uptime_main">Время работы: … часов</string>
 
     <string name="uptime">Время работы: %1$s</string>
     <!-- Конец -->
@@ -68,14 +72,14 @@
     <string name="help">Помощь</string>
 
     <!-- Задержка -->
-    <string name="request_delay">Задержка запросов к серверу</string>
-    <string name="delay_seconds">Задержка в секундах</string>
+    <string name="request_delay">Интервал между запросами к серверу</string>
+    <string name="delay_seconds">Интервал, сек</string>
     <!-- Конец -->
 
     <!-- Уведомления -->
-    <string name="notifications_status">Уведомления при пороге</string>
-    <string name="notify_cpu_on_main">Уведомления процессора ВКЛ</string>
-    <string name="notify_cpu_off_main">Уведомления процессора ВЫКЛ</string>
+    <string name="notifications_status">Уведомления при превышении порога</string>
+    <string name="notify_cpu_on_main">Уведомления CPU ВКЛ</string>
+    <string name="notify_cpu_off_main">Уведомления CPU ВЫКЛ</string>
     <string name="notify_mem_on_main">Уведомления ОЗУ ВКЛ</string>
     <string name="notify_mem_off_main">Уведомления ОЗУ ВЫКЛ</string>
     <string name="notify_disk_on_main">Уведомления диска ВКЛ</string>
@@ -85,5 +89,51 @@
     <!-- SharedPreferences -->
     <string name="sharedprefs_label">Сохранённые значения</string>
     <string name="sharedprefs_button">Проверить</string>
+    <!-- Конец -->
+
+
+
+    <!-- AlertDialogs -->
+    <string name="no_internet_connection">Нет подключения к серверу</string>
+    <string name="no_internet_connection_text">Ошибка подключения к серверу %1$s порт 8080. Проверьте подключение к интернету и состояние сервера.</string>
+
+    <string name="update_available">Обновление %1$s</string>
+    <string name="update_available_text">Доступна новая версия. Пожалуйста, обновите приложение.</string>
+
+    <string name="unknown_error">Неизвестная ошибка</string>
+    <string name="unknown_error_text">Была получена неизвестная ошибка.</string>
+
+    <string name="ip_error">Ошибка с IP</string>
+    <string name="ip_error_text">Серверный IP возможно не был получен (не может быть использован в checkUpdate)</string>
+
+    <string name="prefs_data">SharedPreferences данные</string>
+    <string name="prefs_data_text">Задержка запросов: %1$d секунд\nIP-адрес сервера: %2$s</string>
+    <!-- Конец -->
+
+
+
+    <!-- Toast -->
+    <string name="ip_updated_successful">IP-адрес обновлён: %1$s</string>
+    <string name="ip_not_updated">Введите корректный IP!</string>
+
+    <string name="url_opened">Открыта ссылка</string>
+
+    <string name="delay_updated_successful">Задержка обновлена: %1$s</string>
+    <string name="delay_not_updated">Введите задержку в секундах (не меньше 1)</string>
+    <!-- Конец -->
+
+
+
+    <!-- Уведомления -->
+    <string name="cpu_overload">Высокая загрузка CPU</string>
+    <string name="cpu_overload_text">Внимание! Загрузка CPU достигла %1$.1f%%!</string>
+
+    <string name="mem_overload">Высокое использование ОЗУ</string>
+    <string name="mem_overload_text">Внимание! Используется %1$.1f%% ОЗУ!</string>
+
+
+    <string name="disk_overload">Мало места на диске</string>
+    <string name="disk_overload_text">Внимание! Диск %1$s заполнен на %2$d%%</string>
+    <string name="disk_unknown_overload_text">Внимание! Неизвестный диск заполнен на %1$d%%</string>
     <!-- Конец -->
 </resources>

@@ -34,10 +34,6 @@ class SettingsActivity : AppCompatActivity() {
         var serverIp: String?
         var delay: Long
 
-        //var notificationCpu: Boolean
-        //var notificationMem: Boolean
-        //var notificationDisk: Boolean
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
@@ -45,16 +41,10 @@ class SettingsActivity : AppCompatActivity() {
         sharedPrefsButton.setOnClickListener {
             delay = sharedPrefs.getLong("delay", defaultDelayGetReq)
             serverIp = sharedPrefs.getString("server_ip", defaultServerIp)
-            //notificationCpu = sharedPrefs.getBoolean("cpu_notify", true)
-            //notificationMem = sharedPrefs.getBoolean("mem_notify", true)
-            //notificationDisk = sharedPrefs.getBoolean("disk_notify", true)
             nonSuspendShowErrorDialog(
                 this,
-                "SharedPreferences данные",
-                """
-                    Задержка запросов: $delay секунд
-                    IP-адрес сервера: $serverIp
-                """.trimIndent()
+                getString(R.string.prefs_data),
+                getString(R.string.prefs_data_text, delay, serverIp)
             )
         }
 
@@ -67,9 +57,9 @@ class SettingsActivity : AppCompatActivity() {
             val tryLong: Long? = newDelay.toLongOrNull()
             if (newDelay.isNotEmpty() && tryLong != null && tryLong >= 1) {
                 sharedPrefs.edit { putLong("delay", tryLong) }
-                Toast.makeText(this, "Задержка обновлена: ${getTimeString(tryLong, 2)}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.delay_updated_successful, getTimeString(tryLong, 2)), Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Введите задержку в секундах (не меньше 1)", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.delay_not_updated), Toast.LENGTH_SHORT).show()
             }
         }
         // --- КОНЕЦ

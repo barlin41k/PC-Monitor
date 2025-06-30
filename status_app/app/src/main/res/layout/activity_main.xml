@@ -44,7 +44,7 @@
                     android:inputType="text"
                     android:textColor="?attr/colorOnBackground"
                     android:textColorHint="?attr/colorOnBackground"
-                    android:background="@drawable/edit_text_bg"
+                    android:background="@drawable/style_edit_text_bg"
                     android:textStyle="italic" />
 
                 <Button
@@ -154,7 +154,7 @@
                 android:id="@+id/disk_spinner"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:background="@drawable/spinner_bg"
+                android:background="@drawable/style_spinner_bg"
                 android:popupBackground="?attr/colorSpinnerBackground" />
 
             <TextView

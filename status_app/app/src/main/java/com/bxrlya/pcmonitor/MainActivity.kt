@@ -49,12 +49,10 @@ class MainActivity : AppCompatActivity() {
     private val client = OkHttpClient()
     private var updateJob: Job? = null
     private var isAppVisible = true
-
     private val defaultServerIp = "192.168.1.33"
     private val defaultDelayGetReq = 5L
 
     private lateinit var cpuLoadLabel: TextView
-
     private lateinit var totalMemLabel: TextView
     private lateinit var freeMemLabel: TextView
     private lateinit var totalSwapLabel: TextView
@@ -75,6 +73,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var applyIpButton: Button
 
     private var diskList: List<DiskInfo> = emptyList()
+    private var previousDiskList: List<DiskInfo> = emptyList()
     private lateinit var diskAdapter: ArrayAdapter<String>
 
     data class DiskInfo(
@@ -94,40 +93,15 @@ class MainActivity : AppCompatActivity() {
         var serverIp = sharedPrefs.getString("server_ip", defaultServerIp)
         var getDelay = sharedPrefs.getLong("delay", defaultDelayGetReq)
 
-        // --- ЧЕК ОБНОВЛЕНИЯ
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val (updateAvailable, newVersion) = checkForUpdate(this@MainActivity)
-
-                if (updateAvailable) {
-                    withContext(Dispatchers.Main) {
-                        nonSuspendShowErrorDialog(
-                            this@MainActivity,
-                            "Новое обновление $newVersion",
-                            "Доступна новая версия. Пожалуйста, обновите приложение.",
-                            true
-                        )
-                    }
-                }
-            } catch (e: IOException) {
-                if (isAppVisible) {
-                    showErrorDialog(
-                        this@MainActivity,
-                        "Ошибка подключения",
-                        "Ошибка подключения к серверу $serverIp порт 8080. Проверьте подключение к интернету и состояние сервера."
-                    )
-                }
-            } catch (e: Exception) {
-                if (isAppVisible) {
-                    showErrorDialog(
-                        this@MainActivity,
-                        "Неизвестная ошибка",
-                        e.message ?: "Ошибка без сообщения"
-                    )
-                }
-            }
+        if (serverIp != null) {
+            checkUpdate(this, serverIp, isAppVisible)
+        } else {
+            nonSuspendShowErrorDialog(
+                this,
+                getString(R.string.ip_error),
+                getString(R.string.ip_error_text)
+                )
         }
-        // --- КОНЕЦ
 
         var notificationCpu: Boolean
         var notificationMem: Boolean
@@ -173,9 +147,9 @@ class MainActivity : AppCompatActivity() {
             if (newIp.isNotEmpty()) {
                 serverIp = newIp
                 sharedPrefs.edit { putString("server_ip", serverIp) }
-                Toast.makeText(this, "IP-адрес обновлён: $serverIp", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.ip_updated_successful, serverIp), Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Введите корректный IP", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.ip_not_updated), Toast.LENGTH_SHORT).show()
             }
         }
         // --- КОНЕЦ
@@ -183,25 +157,25 @@ class MainActivity : AppCompatActivity() {
         var notifiedHighCpu = false
         var notifiedHighMem = false
         var notifiedHighDisk = false
-
+        var notifyString: String
 
         // --- SPINNER ДИСКОВ
         diskAdapter = ArrayAdapter(
             this,
-            R.layout.spinner_item,
+            R.layout.style_spinner_item,
             mutableListOf<String>()
         )
-        diskAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+        diskAdapter.setDropDownViewResource(R.layout.style_spinner_dropdown_item)
         spinner.adapter = diskAdapter
 
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val disk = diskList.getOrNull(position) ?: return
-                val percentUsed = if (disk.size != 0.0) disk.used / disk.size * 100 else 0.0
-                val percentFree = if (disk.size != 0.0) disk.free / disk.size * 100 else 0.0
+                val percentUsed = disk.used.percentOf(disk.size)
+                val percentFree = disk.free.percentOf(disk.size)
 
-                totalDiskLabel.text = getString(R.string.disk_used, disk.used, disk.size, percentUsed).coloredSpan(0, 7)
-                freeDiskLabel.text = getString(R.string.disk_free, disk.free, percentFree).coloredSpan(0, 9)
+                totalDiskLabel.text = getString(R.string.disk_used, disk.used, disk.size, percentUsed).coloredSpan()
+                freeDiskLabel.text = getString(R.string.disk_free, disk.free, percentFree).coloredSpan()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -249,8 +223,8 @@ class MainActivity : AppCompatActivity() {
                     val usedSwap = memTopic?.get("swap_used")?.jsonPrimitive?.double ?: 0.0
                     val freeSwap = memTopic?.get("swap_free")?.jsonPrimitive?.double ?: 0.0
 
-                    val hasBattery = batteryTopic?.get("has")?.jsonPrimitive?.boolean ?: false
-                    val isCharging = batteryTopic?.get("is")?.jsonPrimitive?.boolean ?: false
+                    val hasBattery = batteryTopic?.get("has")?.jsonPrimitive?.boolean == true
+                    val isCharging = batteryTopic?.get("is")?.jsonPrimitive?.boolean == true
                     val percentCharging = batteryTopic?.get("percent")?.jsonPrimitive?.double ?: 0.0
                     val remainingTime = batteryTopic?.get("remaining")?.jsonPrimitive?.doubleOrNull
 
@@ -273,9 +247,12 @@ class MainActivity : AppCompatActivity() {
                         // --- КОНЕЦ
 
                         // --- SPINNER СОХРАНЕНИЕ ВЫБОРА ДИСКА
-                        diskAdapter.clear()
-                        diskAdapter.addAll(diskList.map { "Диск ${it.fs}" })
-                        diskAdapter.notifyDataSetChanged()
+                        if (diskList != previousDiskList) {
+                            diskAdapter.clear()
+                            diskAdapter.addAll(diskList.map { "Диск ${it.fs}" })
+                            diskAdapter.notifyDataSetChanged()
+                            previousDiskList = diskList
+                        }
 
                         val selectedFs = spinner.selectedItem?.toString()
                         val indexToSelect = diskList.indexOfFirst { "Диск ${it.fs}" == selectedFs }.takeIf { it >= 0 } ?: 0
@@ -283,30 +260,30 @@ class MainActivity : AppCompatActivity() {
 
                         val selectedDisk = diskList.getOrNull(indexToSelect)
                         if (selectedDisk != null) {
-                            val percentUsed = if (selectedDisk.size != 0.0) selectedDisk.used / selectedDisk.size * 100 else 0.0
-                            val percentFree = if (selectedDisk.size != 0.0) selectedDisk.free / selectedDisk.size * 100 else 0.0
+                            val percentUsed = selectedDisk.used.percentOf(selectedDisk.size)
+                            val percentFree = selectedDisk.free.percentOf(selectedDisk.size)
 
-                            totalDiskLabel.text = getString(R.string.disk_used, selectedDisk.used, selectedDisk.size, percentUsed).coloredSpan(0, 7)
-                            freeDiskLabel.text = getString(R.string.disk_free, selectedDisk.free, percentFree).coloredSpan(0, 9)
+                            totalDiskLabel.text = getString(R.string.disk_used, selectedDisk.used, selectedDisk.size, percentUsed).coloredSpan()
+                            freeDiskLabel.text = getString(R.string.disk_free, selectedDisk.free, percentFree).coloredSpan()
                         }
                         // --- КОНЕЦ
 
                         // --- РАСЧЕТ ПРОЦЕНТОВ
-                        val memPercent1 = if (totalMemory != 0.0) usedMemory / totalMemory * 100 else 0.0
-                        val memPercent2 = if (totalMemory != 0.0) freeMemory / totalMemory * 100 else 0.0
-                        val swapPercent1 = if (totalSwap != 0.0) usedSwap / totalSwap * 100 else 0.0
-                        val swapPercent2 = if (totalSwap != 0.0) freeSwap / totalSwap * 100 else 0.0
+                        val memPercent1 = usedMemory.percentOf(totalMemory)
+                        val memPercent2 = freeMemory.percentOf(totalMemory)
+                        val swapPercent1 = usedSwap.percentOf(totalSwap)
+                        val swapPercent2 = freeSwap.percentOf(totalSwap)
                         // --- КОНЕЦ
 
                         // --- ПРОВЕРКА ЗАГРУЖЕННОСТИ
                         if (notificationCpu) {
                             notifiedHighCpu = checkThreshold(cpuLoad, 90.0, notifiedHighCpu) {
-                                sendNotification("Высокая загрузка CPU", "Загрузка CPU достигла ${cpuLoad.toInt()}%!")
+                                sendNotification(getString(R.string.cpu_overload), getString(R.string.cpu_overload_text, cpuLoad))
                             }
                         }
                         if (notificationMem) {
                             notifiedHighMem = checkThreshold(memPercent1, 90.0, notifiedHighMem) {
-                                sendNotification("Высокое использование ОЗУ", "Используется ${memPercent1.toInt()}% ОЗУ!")
+                                sendNotification(getString(R.string.mem_overload), getString(R.string.mem_overload_text, memPercent1))
                             }
                         }
 
@@ -315,51 +292,56 @@ class MainActivity : AppCompatActivity() {
                         } ?: 0.0
                         if (notificationDisk) {
                             notifiedHighDisk = checkThreshold(diskPercentUsed, 90.0, notifiedHighDisk) {
-                                sendNotification("Мало места на диске", "Диск ${selectedDisk?.fs ?: "неизвестно"} заполнен на ${diskPercentUsed.toInt()}%")
+                                notifyString = if (selectedDisk?.fs != null) {
+                                    getString(R.string.disk_overload_text, selectedDisk.fs, diskPercentUsed.toInt())
+                                } else {
+                                    getString(R.string.disk_unknown_overload_text, diskPercentUsed.toInt())
+                                }
+                                sendNotification(getString(R.string.disk_overload), notifyString)
                             }
                         }
                         // --- КОНЕЦ
 
                         // --- ОБНОВЛЕНИЕ ДАННЫХ
-                        cpuLoadLabel.text = getString(R.string.cpu_load, cpuLoad).coloredSpan(0, 20)
-                        totalMemLabel.text = getString(R.string.memory_usage, usedMemory, totalMemory, memPercent1).coloredSpan(0, 13)
-                        freeMemLabel.text = getString(R.string.free_memory, freeMemory, memPercent2).coloredSpan(0, 13)
-                        totalSwapLabel.text = getString(R.string.swap_usage, usedSwap, totalSwap, swapPercent1).coloredSpan(0, 24)
-                        freeSwapLabel.text = getString(R.string.swap_free, freeSwap, swapPercent2).coloredSpan(0, 26)
+                        cpuLoadLabel.text = getString(R.string.cpu_load, cpuLoad).coloredSpan()
+                        totalMemLabel.text = getString(R.string.memory_usage, usedMemory, totalMemory, memPercent1).coloredSpan()
+                        freeMemLabel.text = getString(R.string.free_memory, freeMemory, memPercent2).coloredSpan()
+                        totalSwapLabel.text = getString(R.string.swap_usage, usedSwap, totalSwap, swapPercent1).coloredSpan()
+                        freeSwapLabel.text = getString(R.string.swap_free, freeSwap, swapPercent2).coloredSpan()
 
                         isChargingLabel.text = when {
-                            isCharging -> getString(R.string.battery_status_charging).coloredSpan(0, 8)
-                            !isCharging && percentCharging.toInt() != 100 -> getString(R.string.battery_status_not_charging).coloredSpan(0, 8)
-                            percentCharging.toInt() == 100 -> getString(R.string.battery_status_full).coloredSpan(0, 8)
-                            else -> getString(R.string.battery_status_unknown).coloredSpan(0, 8)
+                            isCharging -> getString(R.string.battery_status_charging).coloredSpan()
+                            !isCharging && percentCharging.toInt() != 100 -> getString(R.string.battery_status_not_charging).coloredSpan()
+                            percentCharging.toInt() == 100 -> getString(R.string.battery_status_full).coloredSpan()
+                            else -> getString(R.string.battery_status_unknown).coloredSpan()
                         }
-                        percentChargingLabel.text = getString(R.string.percent_charging, percentCharging).coloredSpan(0, 16)
+                        percentChargingLabel.text = getString(R.string.percent_charging, percentCharging).coloredSpan()
                         timeRemainingBatteryLabel.text = when {
                             remainingTime != null && percentCharging.toInt() != 100 ->
-                                getString(R.string.time_remaining_battery, remainingTime/60).coloredSpan(0, 26)
+                                getString(R.string.time_remaining_battery, remainingTime/60).coloredSpan()
                             remainingTime != null && percentCharging.toInt() == 100 ->
-                                getString(R.string.time_remaining_battery_infinite).coloredSpan(0, 24)
-                            else -> getString(R.string.time_remaining_battery_unknown).coloredSpan(0, 24)
+                                getString(R.string.time_remaining_battery_infinite).coloredSpan()
+                            else -> getString(R.string.time_remaining_battery_unknown).coloredSpan()
                         }
 
                         val uptimeHours = osUptimeHours / 3600
-                        osUptimeTimeLabel.text = getString(R.string.uptime, getTimeString(uptimeHours.toLong(), 1)).coloredSpan(0, 12)
+                        osUptimeTimeLabel.text = getString(R.string.uptime, getTimeString(uptimeHours.toLong(), 1)).coloredSpan()
                         // --- КОНЕЦ
                     }
-                } catch (e: IOException) { // Нет подключения к серверу / интернету
+                } catch (_: IOException) { // Нет подключения к серверу / интернету
                     if (isAppVisible) {
                         showErrorDialog(
                             this@MainActivity,
-                            "Ошибка подключения",
-                            "Ошибка подключения к серверу $serverIp порт 8080. Проверьте подключение к интернету и состояние сервера."
+                            getString(R.string.no_internet_connection),
+                            getString(R.string.no_internet_connection_text, serverIp)
                         )
                     }
                 } catch (e: Exception) {
                     if (isAppVisible) {
                         showErrorDialog(
                             this@MainActivity,
-                            "Неизвестная ошибка",
-                            e.message ?: "Ошибка без сообщения"
+                            getString(R.string.unknown_error),
+                            e.message ?: getString(R.string.unknown_error_text)
                         )
                     }
                 }
@@ -383,9 +365,9 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.help -> {
-                val issuesURL = "https://github.com/barlin41k/PC-Monitor/issues"
-                val intent = Intent(Intent.ACTION_VIEW, issuesURL.toUri())
-                Toast.makeText(this, "Открыта ссылка", Toast.LENGTH_SHORT).show()
+                val issuesURL = "https://github.com/barlin41k/PC-Monitor/issues".toUri()
+                val intent = Intent(Intent.ACTION_VIEW, issuesURL)
+                Toast.makeText(this, getString(R.string.url_opened), Toast.LENGTH_SHORT).show()
                 startActivity(intent)
                 true
             }

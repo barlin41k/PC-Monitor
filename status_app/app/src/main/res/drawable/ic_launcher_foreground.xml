@@ -7,7 +7,12 @@
     <!-- Монитор -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M29,32h50v36h-50z" />
+        android:pathData="M29,32h50a2,2 0 0 1 2,2v32a2,2 0 0 1 -2,2h-50a2,2 0 0 1 -2,-2v-32a2,2 0 0 1 2,-2z"/>
+
+    <!-- Экран внутри монитора -->
+    <path
+        android:fillColor="#DBDBDB"
+        android:pathData="M32,35h44v30h-44z" />
 
     <!-- Подставка монитора -->
     <path
