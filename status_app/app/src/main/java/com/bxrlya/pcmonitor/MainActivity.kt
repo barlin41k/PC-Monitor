@@ -30,16 +30,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.boolean
-import kotlinx.serialization.json.double
-import kotlinx.serialization.json.doubleOrNull
-import kotlinx.serialization.json.int
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import okio.IOException
 
 class MainActivity : AppCompatActivity() {
@@ -49,8 +40,13 @@ class MainActivity : AppCompatActivity() {
     private val client = OkHttpClient()
     private var updateJob: Job? = null
     private var isAppVisible = true
-    private val defaultServerIp = "192.168.1.33"
-    private val defaultDelayGetReq = 5L
+    companion object {
+        const val KEY_SETTINGS = "settings"
+        const val KEY_SERVER_IP = "server_ip"
+        const val KEY_DELAY = "delay"
+        const val DEFAULT_SERVER_IP = "192.168.1.33"
+        const val DEFAULT_DELAY_GET_REQ = 5L
+    }
 
     private lateinit var cpuLoadLabel: TextView
     private lateinit var totalMemLabel: TextView
@@ -74,7 +70,9 @@ class MainActivity : AppCompatActivity() {
 
     private var diskList: List<DiskInfo> = emptyList()
     private var previousDiskList: List<DiskInfo> = emptyList()
-    private lateinit var diskAdapter: ArrayAdapter<String>
+    private lateinit var diskAdapter: ArrayAdapter<DiskItem>
+
+    private var notificationsPrefs: List<Boolean> = emptyList()
 
     data class DiskInfo(
         val fs: String,
@@ -82,16 +80,40 @@ class MainActivity : AppCompatActivity() {
         val used: Double,
         val free: Double
     )
+    data class DiskItem(val fs: String, val info: DiskInfo) {
+        override fun toString(): String = "Диск $fs"
+    }
+    data class StatusData(
+        val cpuLoad: Double,
+        val totalMemory: Double,
+        val usedMemory: Double,
+        val freeMemory: Double,
+        val totalSwap: Double,
+        val usedSwap: Double,
+        val freeSwap: Double,
+        val hasBattery: Boolean,
+        val isCharging: Boolean,
+        val percentCharging: Double,
+        val remainingTime: Double?,
+        val osUptimeSeconds: Int,
+        val diskList: List<DiskInfo>
+    )
+    data class Notifications(
+        var notifiedHighCpu: Boolean = false,
+        var notifiedHighMem: Boolean = false,
+        var notifiedHighDisk: Boolean = false,
+        var notifyString: String = ""
+    )
+    val notifications = Notifications()
     // --- КОНЕЦ
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        sharedPrefs = getSharedPreferences("settings", MODE_PRIVATE)
+        sharedPrefs = getSharedPreferences(KEY_SETTINGS, MODE_PRIVATE)
 
-        var serverIp = sharedPrefs.getString("server_ip", defaultServerIp)
-        var getDelay = sharedPrefs.getLong("delay", defaultDelayGetReq)
+        var serverIp = sharedPrefs.getString(KEY_SERVER_IP, DEFAULT_SERVER_IP)
 
         if (serverIp != null) {
             checkUpdate(this, serverIp, isAppVisible)
@@ -101,11 +123,8 @@ class MainActivity : AppCompatActivity() {
                 getString(R.string.ip_error),
                 getString(R.string.ip_error_text)
                 )
+            serverIp = DEFAULT_SERVER_IP
         }
-
-        var notificationCpu: Boolean
-        var notificationMem: Boolean
-        var notificationDisk: Boolean
 
         val toolbar = findViewById<Toolbar>(R.id.main_toolbar)
         setSupportActionBar(toolbar)
@@ -144,9 +163,9 @@ class MainActivity : AppCompatActivity() {
         }
         applyIpButton.setOnClickListener {
             val newIp = ipInputEditText.text.toString().trim()
-            if (newIp.isNotEmpty()) {
+            if (newIp.isNotEmpty() && isValidIPv4(newIp)) {
                 serverIp = newIp
-                sharedPrefs.edit { putString("server_ip", serverIp) }
+                sharedPrefs.edit { putString(KEY_SERVER_IP, serverIp) }
                 Toast.makeText(this, getString(R.string.ip_updated_successful, serverIp), Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, getString(R.string.ip_not_updated), Toast.LENGTH_SHORT).show()
@@ -154,16 +173,11 @@ class MainActivity : AppCompatActivity() {
         }
         // --- КОНЕЦ
 
-        var notifiedHighCpu = false
-        var notifiedHighMem = false
-        var notifiedHighDisk = false
-        var notifyString: String
-
         // --- SPINNER ДИСКОВ
         diskAdapter = ArrayAdapter(
             this,
             R.layout.style_spinner_item,
-            mutableListOf<String>()
+            mutableListOf<DiskItem>()
         )
         diskAdapter.setDropDownViewResource(R.layout.style_spinner_dropdown_item)
         spinner.adapter = diskAdapter
@@ -174,8 +188,8 @@ class MainActivity : AppCompatActivity() {
                 val percentUsed = disk.used.percentOf(disk.size)
                 val percentFree = disk.free.percentOf(disk.size)
 
-                totalDiskLabel.text = getString(R.string.disk_used, disk.used, disk.size, percentUsed).coloredSpan()
-                freeDiskLabel.text = getString(R.string.disk_free, disk.free, percentFree).coloredSpan()
+                totalDiskLabel.text = cs(R.string.disk_used, disk.used, disk.size, percentUsed)
+                freeDiskLabel.text = cs(R.string.disk_free, disk.free, percentFree)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -186,54 +200,16 @@ class MainActivity : AppCompatActivity() {
             while (isActive) {
                 try {
                     // --- ПОЛУЧЕНИЕ ДАННЫХ
-                    val url = "http://$serverIp:8080/status"
-                    val request = Request.Builder().url(url).build()
-                    val response = client.newCall(request).execute()
-                    val body = response.body?.string() ?: ""
+                    val json = fetchStatus(serverIp.toString(), client)!! // принудительно (!!)
+                    notificationsPrefs = sharedPrefsThresholdNotifications(sharedPrefs)
 
-                    getDelay = sharedPrefs.getLong("delay", defaultDelayGetReq)
-                    notificationCpu = sharedPrefs.getBoolean("cpu_notify", true)
-                    notificationMem = sharedPrefs.getBoolean("mem_notify", true)
-                    notificationDisk = sharedPrefs.getBoolean("disk_notify", true)
-
-                    val json = Json.parseToJsonElement(body).jsonObject
-
-                    val cpuTopic = json["cpu"]?.jsonObject
-                    val memTopic = json["mem"]?.jsonObject
-                    val batteryTopic = json["battery"]?.jsonObject
-                    val osTopic = json["os"]?.jsonObject
-                    val diskArray = json["disk"]?.jsonArray ?: continue
-
-                    diskList = diskArray.map { el ->
-                        val obj = el.jsonObject
-                        DiskInfo(
-                            fs = obj["fs"]?.jsonPrimitive?.content ?: "unknown",
-                            size = obj["size"]?.jsonPrimitive?.double ?: 0.0,
-                            used = obj["used"]?.jsonPrimitive?.double ?: 0.0,
-                            free = obj["free"]?.jsonPrimitive?.double ?: 0.0
-                        )
-                    }
-
-                    val cpuLoad = cpuTopic?.get("load")?.jsonPrimitive?.double ?: 0.0
-
-                    val totalMemory = memTopic?.get("total")?.jsonPrimitive?.double ?: 0.0
-                    val usedMemory = memTopic?.get("used")?.jsonPrimitive?.double ?: 0.0
-                    val freeMemory = memTopic?.get("free")?.jsonPrimitive?.double ?: 0.0
-                    val totalSwap = memTopic?.get("swap_total")?.jsonPrimitive?.double ?: 0.0
-                    val usedSwap = memTopic?.get("swap_used")?.jsonPrimitive?.double ?: 0.0
-                    val freeSwap = memTopic?.get("swap_free")?.jsonPrimitive?.double ?: 0.0
-
-                    val hasBattery = batteryTopic?.get("has")?.jsonPrimitive?.boolean == true
-                    val isCharging = batteryTopic?.get("is")?.jsonPrimitive?.boolean == true
-                    val percentCharging = batteryTopic?.get("percent")?.jsonPrimitive?.double ?: 0.0
-                    val remainingTime = batteryTopic?.get("remaining")?.jsonPrimitive?.doubleOrNull
-
-                    val osUptimeHours = osTopic?.get("up")?.jsonPrimitive?.int ?: 0
+                    val jsonData = parseStatusJson(json)
+                    diskList = jsonData.diskList
                     // --- КОНЕЦ
 
                     withContext(Dispatchers.Main) {
                         // --- ПРОВЕРКА БАТАРЕИ
-                        if (!hasBattery && isChargingLabel.isVisible) {
+                        if (!jsonData.hasBattery && isChargingLabel.isVisible) {
                             batteryElements.forEach { el ->
                                 el.visibility = View.GONE
                             }
@@ -249,13 +225,13 @@ class MainActivity : AppCompatActivity() {
                         // --- SPINNER СОХРАНЕНИЕ ВЫБОРА ДИСКА
                         if (diskList != previousDiskList) {
                             diskAdapter.clear()
-                            diskAdapter.addAll(diskList.map { "Диск ${it.fs}" })
+                            diskAdapter.addAll(diskList.map { DiskItem(it.fs, it) })
                             diskAdapter.notifyDataSetChanged()
                             previousDiskList = diskList
                         }
 
-                        val selectedFs = spinner.selectedItem?.toString()
-                        val indexToSelect = diskList.indexOfFirst { "Диск ${it.fs}" == selectedFs }.takeIf { it >= 0 } ?: 0
+                        val selectedItem = spinner.selectedItem as? DiskItem
+                        val indexToSelect = diskAdapter.getPosition(selectedItem).takeIf { it >= 0 } ?: 0
                         spinner.setSelection(indexToSelect)
 
                         val selectedDisk = diskList.getOrNull(indexToSelect)
@@ -263,90 +239,57 @@ class MainActivity : AppCompatActivity() {
                             val percentUsed = selectedDisk.used.percentOf(selectedDisk.size)
                             val percentFree = selectedDisk.free.percentOf(selectedDisk.size)
 
-                            totalDiskLabel.text = getString(R.string.disk_used, selectedDisk.used, selectedDisk.size, percentUsed).coloredSpan()
-                            freeDiskLabel.text = getString(R.string.disk_free, selectedDisk.free, percentFree).coloredSpan()
+                            totalDiskLabel.text = cs(R.string.disk_used, selectedDisk.used, selectedDisk.size, percentUsed)
+                            freeDiskLabel.text = cs(R.string.disk_free, selectedDisk.free, percentFree)
                         }
                         // --- КОНЕЦ
 
                         // --- РАСЧЕТ ПРОЦЕНТОВ
-                        val memPercent1 = usedMemory.percentOf(totalMemory)
-                        val memPercent2 = freeMemory.percentOf(totalMemory)
-                        val swapPercent1 = usedSwap.percentOf(totalSwap)
-                        val swapPercent2 = freeSwap.percentOf(totalSwap)
+                        val usedMemPercent = jsonData.usedMemory.percentOf(jsonData.totalMemory)
+                        val freeMemPercent = jsonData.freeMemory.percentOf(jsonData.totalMemory)
+                        val usedSwapPercent = jsonData.usedSwap.percentOf(jsonData.totalSwap)
+                        val freeSwapPercent = jsonData.freeSwap.percentOf(jsonData.totalSwap)
                         // --- КОНЕЦ
 
                         // --- ПРОВЕРКА ЗАГРУЖЕННОСТИ
-                        if (notificationCpu) {
-                            notifiedHighCpu = checkThreshold(cpuLoad, 90.0, notifiedHighCpu) {
-                                sendNotification(getString(R.string.cpu_overload), getString(R.string.cpu_overload_text, cpuLoad))
-                            }
-                        }
-                        if (notificationMem) {
-                            notifiedHighMem = checkThreshold(memPercent1, 90.0, notifiedHighMem) {
-                                sendNotification(getString(R.string.mem_overload), getString(R.string.mem_overload_text, memPercent1))
-                            }
-                        }
-
-                        val diskPercentUsed = selectedDisk?.let { disk ->
-                            if (disk.size != 0.0) disk.used / disk.size * 100 else 0.0
-                        } ?: 0.0
-                        if (notificationDisk) {
-                            notifiedHighDisk = checkThreshold(diskPercentUsed, 90.0, notifiedHighDisk) {
-                                notifyString = if (selectedDisk?.fs != null) {
-                                    getString(R.string.disk_overload_text, selectedDisk.fs, diskPercentUsed.toInt())
-                                } else {
-                                    getString(R.string.disk_unknown_overload_text, diskPercentUsed.toInt())
-                                }
-                                sendNotification(getString(R.string.disk_overload), notifyString)
-                            }
-                        }
+                        val isNotifications = listOf(notificationsPrefs[0], notificationsPrefs[1], notificationsPrefs[2])
+                        thresholdNotifications(this@MainActivity, jsonData, isNotifications, selectedDisk, notifications)
                         // --- КОНЕЦ
 
                         // --- ОБНОВЛЕНИЕ ДАННЫХ
-                        cpuLoadLabel.text = getString(R.string.cpu_load, cpuLoad).coloredSpan()
-                        totalMemLabel.text = getString(R.string.memory_usage, usedMemory, totalMemory, memPercent1).coloredSpan()
-                        freeMemLabel.text = getString(R.string.free_memory, freeMemory, memPercent2).coloredSpan()
-                        totalSwapLabel.text = getString(R.string.swap_usage, usedSwap, totalSwap, swapPercent1).coloredSpan()
-                        freeSwapLabel.text = getString(R.string.swap_free, freeSwap, swapPercent2).coloredSpan()
+                        cpuLoadLabel.text = cs(R.string.cpu_load, jsonData.cpuLoad)
+                        totalMemLabel.text = cs(R.string.memory_usage, jsonData.usedMemory, jsonData.totalMemory, usedMemPercent)
+                        freeMemLabel.text = cs(R.string.free_memory, jsonData.freeMemory, freeMemPercent)
+                        totalSwapLabel.text = cs(R.string.swap_usage, jsonData.usedSwap, jsonData.totalSwap, usedSwapPercent)
+                        freeSwapLabel.text = cs(R.string.swap_free, jsonData.freeSwap, freeSwapPercent)
 
                         isChargingLabel.text = when {
-                            isCharging -> getString(R.string.battery_status_charging).coloredSpan()
-                            !isCharging && percentCharging.toInt() != 100 -> getString(R.string.battery_status_not_charging).coloredSpan()
-                            percentCharging.toInt() == 100 -> getString(R.string.battery_status_full).coloredSpan()
-                            else -> getString(R.string.battery_status_unknown).coloredSpan()
+                            jsonData.isCharging -> cs(R.string.battery_status_charging)
+                            !jsonData.isCharging && jsonData.percentCharging.toInt() != 100 -> cs(R.string.battery_status_not_charging)
+                            jsonData.percentCharging.toInt() == 100 -> cs(R.string.battery_status_full)
+                            else -> cs(R.string.battery_status_unknown)
                         }
-                        percentChargingLabel.text = getString(R.string.percent_charging, percentCharging).coloredSpan()
+                        percentChargingLabel.text = cs(R.string.percent_charging, jsonData.percentCharging)
                         timeRemainingBatteryLabel.text = when {
-                            remainingTime != null && percentCharging.toInt() != 100 ->
-                                getString(R.string.time_remaining_battery, remainingTime/60).coloredSpan()
-                            remainingTime != null && percentCharging.toInt() == 100 ->
-                                getString(R.string.time_remaining_battery_infinite).coloredSpan()
-                            else -> getString(R.string.time_remaining_battery_unknown).coloredSpan()
+                            jsonData.remainingTime != null && jsonData.percentCharging.toInt() != 100 ->
+                                cs(R.string.time_remaining_battery, jsonData.remainingTime/60)
+                            jsonData.remainingTime != null && jsonData.percentCharging.toInt() == 100 ->
+                                cs(R.string.time_remaining_battery_infinite)
+                            else -> cs(R.string.time_remaining_battery_unknown)
                         }
 
-                        val uptimeHours = osUptimeHours / 3600
-                        osUptimeTimeLabel.text = getString(R.string.uptime, getTimeString(uptimeHours.toLong(), 1)).coloredSpan()
+                        val uptimeHours = jsonData.osUptimeSeconds / 3600
+                        osUptimeTimeLabel.text = cs(R.string.uptime, getTimeString(uptimeHours.toLong(), 1))
                         // --- КОНЕЦ
                     }
                 } catch (_: IOException) { // Нет подключения к серверу / интернету
-                    if (isAppVisible) {
-                        showErrorDialog(
-                            this@MainActivity,
-                            getString(R.string.no_internet_connection),
-                            getString(R.string.no_internet_connection_text, serverIp)
-                        )
-                    }
+                    IOExceptionCatch(this@MainActivity, isAppVisible, serverIp.toString())
                 } catch (e: Exception) {
-                    if (isAppVisible) {
-                        showErrorDialog(
-                            this@MainActivity,
-                            getString(R.string.unknown_error),
-                            e.message ?: getString(R.string.unknown_error_text)
-                        )
-                    }
+                    val string = getString(R.string.unknown_error_text)
+                    unknownExceptionCatch(this@MainActivity, isAppVisible, e.message ?: string)
                 }
 
-                delay(getDelay*1000L)
+                delay(sharedPrefs.getLong(KEY_DELAY, DEFAULT_DELAY_GET_REQ).toMiliSec())
             }
         }
     }

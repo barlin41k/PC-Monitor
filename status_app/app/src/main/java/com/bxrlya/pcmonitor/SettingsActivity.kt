@@ -19,8 +19,13 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var cpuNotifications: ToggleButton
     private lateinit var memNotifications: ToggleButton
     private lateinit var diskNotifications: ToggleButton
-    private val defaultServerIp = "192.168.1.33"
-    private val defaultDelayGetReq = 5L
+    companion object {
+        const val KEY_SETTINGS = "settings"
+        const val KEY_SERVER_IP = "server_ip"
+        const val KEY_DELAY = "delay"
+        const val DEFAULT_SERVER_IP = "192.168.1.33"
+        const val DEFAULT_DELAY_GET_REQ = 5L
+    }
     // --- КОНЕЦ
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +35,7 @@ class SettingsActivity : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(R.id.second_toolbar)
         setSupportActionBar(toolbar)
 
-        val sharedPrefs = getSharedPreferences("settings", MODE_PRIVATE)
+        val sharedPrefs = getSharedPreferences(KEY_SETTINGS, MODE_PRIVATE)
         var serverIp: String?
         var delay: Long
 
@@ -39,12 +44,14 @@ class SettingsActivity : AppCompatActivity() {
 
         sharedPrefsButton = findViewById(R.id.sharedprefs_button)
         sharedPrefsButton.setOnClickListener {
-            delay = sharedPrefs.getLong("delay", defaultDelayGetReq)
-            serverIp = sharedPrefs.getString("server_ip", defaultServerIp)
+            delay = sharedPrefs.getLong(KEY_DELAY, DEFAULT_DELAY_GET_REQ)
+            serverIp = sharedPrefs.getString(KEY_SERVER_IP, DEFAULT_SERVER_IP)
             nonSuspendShowErrorDialog(
                 this,
                 getString(R.string.prefs_data),
-                getString(R.string.prefs_data_text, delay, serverIp)
+                getString(R.string.prefs_data_text, delay, serverIp),
+                false,
+                true
             )
         }
 
@@ -56,7 +63,7 @@ class SettingsActivity : AppCompatActivity() {
             val newDelay = editTextDelay.text.toString().trim()
             val tryLong: Long? = newDelay.toLongOrNull()
             if (newDelay.isNotEmpty() && tryLong != null && tryLong >= 1) {
-                sharedPrefs.edit { putLong("delay", tryLong) }
+                sharedPrefs.edit { putLong(KEY_DELAY, tryLong) }
                 Toast.makeText(this, getString(R.string.delay_updated_successful, getTimeString(tryLong, 2)), Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this, getString(R.string.delay_not_updated), Toast.LENGTH_SHORT).show()

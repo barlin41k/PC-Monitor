@@ -10,20 +10,28 @@ import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
+import com.bxrlya.pcmonitor.SettingsActivity.Companion.KEY_DELAY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import java.io.IOException
+import java.net.InetAddress
+
 
 // --- ОКРАСКА ЧАСТИ ТЕКСТА В ВЫДЕЛЯЮЩИЙ ЦВЕТ
 fun String.coloredSpan(delimiter: Char = ':'): Spannable {
@@ -76,14 +84,12 @@ fun Context.sendNotification(title: String, message: String, channelId: String =
         }
     }
 
-
     val channel = NotificationChannel(
         channelId,
         "PC Monitor Alerts",
         NotificationManager.IMPORTANCE_HIGH
     )
     manager.createNotificationChannel(channel)
-
 
     val notification = NotificationCompat.Builder(this, channelId)
         .setSmallIcon(R.drawable.ic_launcher_notify)
@@ -139,45 +145,61 @@ suspend fun showErrorDialog(
     }
 }
 
+const val KEY_SERVER_IP = "server_ip"
+const val DEFAULT_SERVER_IP = "192.168.1.33"
+const val DEFAULT_DELAY_GET_REQ = 5L
 fun nonSuspendShowErrorDialog(
     context: Context,
     title: String,
     message: String,
-    isUpdateChecker: Boolean = false
+    isUpdateChecker: Boolean = false,
+    isPrefsButton: Boolean = false
 ) {
     if (alertDialogErrorIsShowing?.isShowing == true) {
         return
     }
-    if (!isUpdateChecker) {
-        alertDialogErrorIsShowing = AlertDialog.Builder(context)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton("ОК") { dialog, _ ->
-                dialog.dismiss()
-                alertDialogErrorIsShowing = null
-            }
-            .setOnDismissListener {
-                alertDialogErrorIsShowing = null
-            }
-            .show()
-    } else {
-        alertDialogErrorIsShowing = AlertDialog.Builder(context)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton("ОК") { dialog, _ ->
-                dialog.dismiss()
-                alertDialogErrorIsShowing = null
-                val intent = Intent(Intent.ACTION_VIEW,
-                    "https://github.com/barlin41k/PC-Monitor/releases".toUri())
-                context.startActivity(intent)
-            }
-            .setNegativeButton("Потом") { dialog, _ ->
-                dialog.dismiss()
-                alertDialogErrorIsShowing = null
-            }
-            .show()
+
+    val builder = AlertDialog.Builder(context)
+        .setTitle(title)
+        .setMessage(message)
+        .setPositiveButton("ОК") { dialog, _ ->
+            dialog.dismiss()
+            alertDialogErrorIsShowing = null
+        }
+        .setOnDismissListener {
+            alertDialogErrorIsShowing = null
+        }
+
+    if (isUpdateChecker) {
+        builder.setPositiveButton("ОК") { dialog, _ ->
+            dialog.dismiss()
+            alertDialogErrorIsShowing = null
+            val intent = Intent(Intent.ACTION_VIEW,
+                "https://github.com/barlin41k/PC-Monitor/releases".toUri())
+            context.startActivity(intent)
+        }
+        builder.setNegativeButton("Потом") { dialog, _ ->
+            dialog.dismiss()
+            alertDialogErrorIsShowing = null
+        }
     }
+
+    if (isPrefsButton) {
+        builder.setNeutralButton("Сбросить") { dialog, _ ->
+            dialog.dismiss()
+            alertDialogErrorIsShowing = null
+            val sharedPrefs = context.getSharedPreferences(MainActivity.KEY_SETTINGS, Context.MODE_PRIVATE)
+            sharedPrefs.edit {
+                putLong(KEY_DELAY, DEFAULT_DELAY_GET_REQ)
+                putString(KEY_SERVER_IP, DEFAULT_SERVER_IP)
+            }
+            Toast.makeText(context, "Настройки сброшены!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    alertDialogErrorIsShowing = builder.show()
 }
+
 
 // --- ПРОВЕРКА ВЕРСИИ
 fun checkForUpdate(context: Context): Pair<Boolean, String> {
@@ -216,24 +238,42 @@ fun checkUpdate(context: Context, serverIp: String, isAppVisible: Boolean) {
                 }
             }
         } catch (_: IOException) {
-            if (isAppVisible) {
-                showErrorDialog(
-                    context,
-                    context.getString(R.string.no_internet_connection),
-                    context.getString(R.string.no_internet_connection_text, serverIp)
-                )
-            }
+            IOExceptionCatch(context, isAppVisible, serverIp.toString())
         } catch (e: Exception) {
-            if (isAppVisible) {
-                showErrorDialog(
-                    context,
-                    context.getString(R.string.unknown_error),
-                    e.message ?: context.getString(R.string.unknown_error_text)
-                )
-            }
+            val string = context.getString(R.string.unknown_error_text)
+            unknownExceptionCatch(context, isAppVisible, e.message ?: string)
         }
+    }
+}
+
+// --- ЗАГРУЗКА JSON
+fun fetchStatus(serverIp: String, client: OkHttpClient): JsonObject? {
+    return try {
+        val url = "http://$serverIp:8080/status"
+        val request = Request.Builder().url(url).build()
+        val response = client.newCall(request).execute()
+        val body = response.body?.string() ?: return null
+        Json.parseToJsonElement(body).jsonObject
+    } catch (_: IOException) {
+        null
+    }
+}
+
+// --- ПРОВЕРИТЬ КОРРЕКТНОСТЬ АЙПИ
+fun isValidIPv4(ip: String): Boolean {
+    return try {
+        val inet = InetAddress.getByName(ip)
+        inet.hostAddress == ip && inet.address.size == 4
+    } catch (_: Exception) {
+        false
     }
 }
 
 // --- ПРОЦЕНТЫ
 fun Double.percentOf(total: Double): Double = if (total != 0.0) this / total * 100 else 0.0
+
+// --- getString+coloredSpan ПОВТОРЫ
+fun Context.cs(id: Int, vararg args: Any): CharSequence = getString(id, *args).coloredSpan()
+
+// --- ЗАДЕРЖКА В МС
+fun Long.toMiliSec(): Long = this*1000L
