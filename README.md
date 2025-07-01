@@ -1,3 +1,5 @@
+#### Репозиторий заморожен, так как для его дальнейшей разработки требуется масштабный рефакторинг.
+#### Версия за 01.07.25 является последней и стабильной
 # 🖥️ PC Monitor
 ![GitHub repo size](https://img.shields.io/github/repo-size/barlin41k/PC-Monitor?style=for-the-badge)
 ![GitHub issues](https://img.shields.io/github/issues/barlin41k/PC-Monitor?style=for-the-badge)
