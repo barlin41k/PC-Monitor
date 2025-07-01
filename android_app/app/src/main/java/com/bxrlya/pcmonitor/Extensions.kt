@@ -92,7 +92,7 @@ fun Context.sendNotification(title: String, message: String, channelId: String =
     manager.createNotificationChannel(channel)
 
     val notification = NotificationCompat.Builder(this, channelId)
-        .setSmallIcon(R.drawable.ic_launcher_notify)
+        .setSmallIcon(R.drawable.ic_launcher_foreground)
         .setContentTitle(title)
         .setContentText(message)
         .setPriority(NotificationCompat.PRIORITY_HIGH)

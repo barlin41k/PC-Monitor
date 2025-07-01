@@ -69,7 +69,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var applyIpButton: Button
 
     private var diskList: List<DiskInfo> = emptyList()
-    private var previousDiskList: List<DiskInfo> = emptyList()
     private lateinit var diskAdapter: ArrayAdapter<DiskItem>
 
     private var notificationsPrefs: List<Boolean> = emptyList()
@@ -122,7 +121,7 @@ class MainActivity : AppCompatActivity() {
                 this,
                 getString(R.string.ip_error),
                 getString(R.string.ip_error_text)
-                )
+            )
             serverIp = DEFAULT_SERVER_IP
         }
 
@@ -223,15 +222,13 @@ class MainActivity : AppCompatActivity() {
                         // --- КОНЕЦ
 
                         // --- SPINNER СОХРАНЕНИЕ ВЫБОРА ДИСКА
-                        if (diskList != previousDiskList) {
-                            diskAdapter.clear()
-                            diskAdapter.addAll(diskList.map { DiskItem(it.fs, it) })
-                            diskAdapter.notifyDataSetChanged()
-                            previousDiskList = diskList
-                        }
+                        val oldIndex = spinner.selectedItemPosition.coerceAtLeast(0)
 
-                        val selectedItem = spinner.selectedItem as? DiskItem
-                        val indexToSelect = diskAdapter.getPosition(selectedItem).takeIf { it >= 0 } ?: 0
+                        diskAdapter.clear()
+                        diskAdapter.addAll(diskList.map { DiskItem(it.fs, it) })
+                        diskAdapter.notifyDataSetChanged()
+
+                        val indexToSelect = oldIndex.coerceAtMost(diskAdapter.count - 1)
                         spinner.setSelection(indexToSelect)
 
                         val selectedDisk = diskList.getOrNull(indexToSelect)

@@ -7,16 +7,20 @@
     <!-- Монитор -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M8,20h92v60h-92z" />
+        android:pathData="M29,32h50a2,2 0 0 1 2,2v32a2,2 0 0 1 -2,2h-50a2,2 0 0 1 -2,-2v-32a2,2 0 0 1 2,-2z"/>
+
+    <!-- Экран внутри монитора -->
+    <path
+        android:fillColor="#5c5c5c"
+        android:pathData="M32,35h44v30h-44z" />
 
     <!-- Подставка монитора -->
     <path
         android:fillColor="#CCCCCC"
-        android:pathData="M48,80h12v8h-12z" />
+        android:pathData="M49,68h6v5h-6z" />
 
-    <!-- Нижняя подставка -->
+    <!-- Подставка нижняя -->
     <path
         android:fillColor="#BBBBBB"
-        android:pathData="M38,88h32v6h-32z" />
-
+        android:pathData="M42,75h20v3h-20z" />
 </vector>
